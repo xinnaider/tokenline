@@ -1,0 +1,37 @@
+name: Bug report
+description: Something in the statusline renders wrong or breaks
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect instead?
+    validations:
+      required: true
+  - type: input
+    id: cli
+    attributes:
+      label: CLI + version
+      description: e.g. Claude Code 2.x, Antigravity CLI x.y
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: OS / shell
+      description: e.g. Ubuntu 24.04 on WSL2, bash 5.2
+    validations:
+      required: true
+  - type: textarea
+    id: deps
+    attributes:
+      label: Dependency check
+      description: Paste the output of `./install.sh` (it lists bash/jq/coreutils status).
+      render: shell
+  - type: textarea
+    id: output
+    attributes:
+      label: Statusline output
+      description: Paste the rendered line(s), or a screenshot.
+      render: shell

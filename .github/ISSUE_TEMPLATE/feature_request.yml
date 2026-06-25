@@ -1,0 +1,22 @@
+name: Feature request
+description: Suggest an improvement or new statusline element
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: What would you like the statusline to show or do that it doesn't today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: How should it look or work? A mock of the rendered line helps.
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: This keeps the script a single drop-in file with no new hard dependencies
