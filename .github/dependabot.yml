@@ -1,8 +1,8 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# Dependabot — keeps the pinned GitHub Actions SHAs fresh. There is no package
-# manifest in this repo (it's a single bash script), so only the
-# `github-actions` ecosystem is tracked. All actions are grouped into one
-# weekly PR with a `chore` prefix so it passes the pr-title.yml check.
+# Dependabot — keeps the pinned GitHub Actions SHAs and the CLI's dev
+# dependencies fresh. Two ecosystems: github-actions (workflows + the composite
+# action) and npm (the pnpm-managed devDependencies for src/cli.ts). Each is
+# grouped into one weekly PR with a `chore` prefix so it passes pr-title.yml.
 # ─────────────────────────────────────────────────────────────────────────────
 version: 2
 updates:
@@ -16,6 +16,22 @@ updates:
     open-pull-requests-limit: 5
     groups:
       all-actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: chore
+      include: scope
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 5
+    groups:
+      all-npm:
         patterns:
           - "*"
     commit-message:
