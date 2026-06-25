@@ -9,8 +9,12 @@ Antigravity). The host CLI pipes a JSON snapshot of the session to the script on
 stdin once per second; the script prints up to three lines (model/context/cache,
 per-turn token economics, rate limits).
 
-The whole product is `tokenline.sh`. `install.sh` is a dependency-checker that
-prints the settings snippet. Keep it that simple.
+The product is `tokenline.sh` — that's what renders every second. Two installers
+wrap it: `install.sh` (bash, no Node) prints the settings snippet, and the npm
+package `@inbrace-tech/tokenline` (a TypeScript CLI in `src/`, built to
+`dist/cli.js`) copies the script and patches `settings.json`. Both are
+**install-time only** — no Node ever runs in the per-second hot path. Keep the
+bash script the single source of truth.
 
 ## Hard constraints
 
@@ -23,8 +27,9 @@ prints the settings snippet. Keep it that simple.
 - **Keep it ShellCheck-clean.** CI runs `shellcheck -s bash` on every push.
 - **No new hard dependencies** beyond `bash` 4+, `jq`, and GNU coreutils without
   discussion. The appeal is a zero-install drop-in file.
-- **Single file.** Don't split the script into a library unless there's a strong
-  reason; the value is "copy one file and go".
+- **Single-file statusline.** Don't split `tokenline.sh` into a library unless
+  there's a strong reason; the value is "copy one file and go". (The npm
+  installer under `src/` is separate tooling — see below.)
 
 ## Testing a change
 
@@ -40,3 +45,16 @@ Strip ANSI to check structure: pipe the output through `sed 's/\x1b\[[0-9;]*m//g
 
 v1 targets Linux / WSL2. macOS and Windows are tracked as roadmap issues — the
 GNU-specific calls (`mapfile`, `date -d`, `stat -c`) are the things to abstract.
+
+## The npm installer
+
+`src/cli.ts` is the installer CLI, authored in TypeScript and built with `tsc`
+to `dist/cli.js` (the published artifact; `dist/` is gitignored). It has **zero
+runtime dependencies** — only Node built-ins. Develop with pnpm: `pnpm lint`,
+`pnpm typecheck`, `pnpm build`. CI runs all three plus ShellCheck.
+
+The installer is a convenience wrapper: it must never become *required* to use
+the statusline — the bash + `install.sh` path stays first-class so non-Node
+users (Python, Ruby, …) are never excluded. Its `settings.json` patching is
+deliberately safe: merge-only, back up first, never clobber invalid JSON,
+idempotent, `--force` to replace an existing `statusLine`.

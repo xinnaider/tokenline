@@ -30,6 +30,21 @@ A quick way to capture a real payload is to temporarily pipe stdin to a file fro
 local copy, exercise a session, then reuse that file as a fixture (never commit it —
 it contains session data).
 
+## The npm installer (TypeScript)
+
+The installer CLI lives in `src/cli.ts` and is built to `dist/cli.js`. It uses
+**pnpm**:
+
+```bash
+pnpm install
+pnpm lint        # eslint (with --fix) + import sort + prettier
+pnpm typecheck   # tsc --noEmit
+pnpm build       # tsc → dist/
+```
+
+CI runs `pnpm lint` / `typecheck` / `build` alongside ShellCheck — keep them
+green. The statusline itself stays pure bash; the CLI only configures it.
+
 ## Platform support
 
 v1 targets Linux / WSL2. macOS and Windows are tracked as roadmap issues — if you're

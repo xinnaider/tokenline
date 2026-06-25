@@ -59,15 +59,36 @@ v1 targets **Linux / WSL2**:
 
 ## Install
 
+### With npm (recommended)
+
+If you have **Node 18+**, one command installs the script and wires it into your
+Claude Code settings:
+
+```bash
+npx @inbrace-tech/tokenline init
+```
+
+It copies `tokenline.sh` to `~/.claude/` and adds the `statusLine` block to
+`~/.claude/settings.json`. Use `--project` to configure the current project
+instead of your global settings, and `--dry-run` to preview without writing.
+Then restart Claude Code.
+
+> The statusline runs as `bash tokenline.sh` — Node is used only at install
+> time, never in the per-second hot path. `jq` is still required at runtime.
+
+### Without Node (clone + install.sh)
+
+No Node? Clone the repo and run the dependency checker, which prints a
+ready-to-paste snippet:
+
 ```bash
 git clone https://github.com/inbrace-tech/tokenline.git
 cd tokenline
 ./install.sh
 ```
 
-`install.sh` verifies dependencies and prints a ready-to-paste snippet. Add it to
-`~/.claude/settings.json` (global) or your project's `.claude/settings.json`, inside
-the top-level object:
+Add the printed block to `~/.claude/settings.json` (global) or your project's
+`.claude/settings.json`, inside the top-level object:
 
 ```json
 "statusLine": {
@@ -78,6 +99,23 @@ the top-level object:
 ```
 
 Then restart Claude Code.
+
+### What the installer does
+
+`npx @inbrace-tech/tokenline init` is deliberately transparent about touching
+your config:
+
+- **Writes** `tokenline.sh` to `~/.claude/` (or `./.claude/` with `--project`).
+- **Merges** only the `statusLine` key into `settings.json` — every other
+  setting is preserved.
+- **Backs up** `settings.json` to `settings.json.bak` before writing.
+- **Never clobbers** invalid JSON: if it can't parse your `settings.json`, it
+  stops and prints the block to paste manually.
+- Is **idempotent**, and won't replace a different existing `statusLine` unless
+  you pass `--force`.
+
+Other commands: `doctor` (check dependencies and config, change nothing) and
+`uninstall` (remove the block; `--purge` also deletes the script).
 
 ### Antigravity CLI
 
