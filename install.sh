@@ -19,6 +19,8 @@ OPT_DRYRUN=0
 OPT_PRINT=0
 OPT_FORCE=0
 OPT_THEME=""
+OPT_WIDGET="auto"   # auto (prompt) | yes | no — optional macOS multi-account widget
+WIDGET_ON=0         # resolved by decide_widget; gates the writer + reader
 
 usage() {
   cat <<'EOF'
@@ -36,6 +38,13 @@ Usage:
   ./install.sh --dry-run       # show what would happen, write nothing
   ./install.sh --print         # only print the settings snippet
   ./install.sh --force         # replace a different existing statusLine
+  ./install.sh --widget        # also set up the macOS widget (Perch), no prompt
+  ./install.sh --no-widget     # skip the macOS widget prompt entirely
+
+The macOS multi-account widget (Perch) is optional. When enabled, the statusLine
+command gets a TOKENLINE_WIDGET=1 prefix (writer scoped to that command — your
+shell env is untouched) and a reader is installed: the native Perch.app if Xcode
++ xcodegen are present, otherwise the SwiftBar plugin. See widget/README.md.
 EOF
 }
 
@@ -47,6 +56,8 @@ while [ $# -gt 0 ]; do
     --dry-run) OPT_DRYRUN=1; shift ;;
     --print) OPT_PRINT=1; shift ;;
     --force) OPT_FORCE=1; shift ;;
+    --widget) OPT_WIDGET="yes"; shift ;;
+    --no-widget) OPT_WIDGET="no"; shift ;;
     -h|--help) usage; exit 0 ;;
     *) printf 'unknown option: %s (try --help)\n' "$1" >&2; exit 2 ;;
   esac
@@ -138,6 +149,11 @@ statusline_command() {
   # Omit the flag for full (the default) so the command stays identical.
   if [ -n "$OPT_THEME" ] && [ "$OPT_THEME" != "full" ]; then
     base="$base --theme $OPT_THEME"
+  fi
+  # Widget opt-in: enable the per-account snapshot writer just for this command,
+  # without touching the user's shell env. Default (off) stays byte-for-byte.
+  if [ "${WIDGET_ON:-0}" -eq 1 ]; then
+    base="TOKENLINE_WIDGET=1 $base"
   fi
   printf '%s' "$base"
 }
@@ -535,6 +551,79 @@ install_one() {
   patch_settings "$settings" "$cmd"
 }
 
+# --- macOS widget (Perch) — optional, never required -------------------------
+# Resolves WIDGET_ON before the install loop so statusline_command can add the
+# writer prefix. The reader (native app / SwiftBar plugin) is installed after.
+decide_widget() {
+  WIDGET_ON=0
+  [ "$(uname -s)" = "Darwin" ] || return 0    # the reader is macOS-only
+  case "$OPT_WIDGET" in
+    yes) WIDGET_ON=1; return 0 ;;
+    no)  return 0 ;;
+    *)   ;;                                    # auto → prompt when interactive
+  esac
+  { [ -t 0 ] && [ -t 1 ]; } || return 0
+  printf '\n %sAlso set up the macOS multi-account widget (Perch)?%s %s[y/N]%s ' \
+    "$C_BOLD" "$C_RESET" "$C_DIM" "$C_RESET"
+  local reply; IFS= read -r reply || reply=""
+  case "$reply" in y|Y|yes|Yes|YES) WIDGET_ON=1 ;; esac
+}
+
+install_swiftbar_plugin() {
+  local plugin="$SCRIPT_DIR/widget/swiftbar/tokenline.5s.sh"
+  local sbdir="$HOME/Library/Application Support/SwiftBar/Plugins"
+  if [ -d "$sbdir" ] && [ -f "$plugin" ]; then
+    if cp "$plugin" "$sbdir/" 2>/dev/null; then
+      chmod +x "$sbdir/tokenline.5s.sh" 2>/dev/null || true
+      ok_line "SwiftBar plugin → ${sbdir/#$HOME/~}/tokenline.5s.sh"
+      return 0
+    fi
+    warn_line "couldn't copy the SwiftBar plugin — see widget/README.md"
+    return 1
+  fi
+  note_line "reader: install SwiftBar + copy widget/swiftbar/, or build the app — see widget/README.md"
+}
+
+build_perch_app() {
+  local app="$SCRIPT_DIR/widget/macos/App"
+  spin_for 0.4 "building Perch.app (this takes a moment)"
+  ( cd "$app" && xcodegen generate >/dev/null 2>&1 \
+      && xcodebuild -project TokenlineWidget.xcodeproj -scheme TokenlineWidget \
+           -configuration Release -derivedDataPath build build >/dev/null 2>&1 ) \
+    || { warn_line "native build failed — falling back to SwiftBar"; return 1; }
+
+  local built="$app/build/Build/Products/Release/TokenlineWidget.app"
+  [ -d "$built" ] || { warn_line "build produced no .app — see widget/README.md"; return 1; }
+
+  local dest="/Applications/Perch.app"
+  if ! { rm -rf "$dest" 2>/dev/null && cp -R "$built" "$dest" 2>/dev/null; }; then
+    dest="$HOME/Applications/Perch.app"
+    mkdir -p "$HOME/Applications" 2>/dev/null || true
+    rm -rf "$dest" 2>/dev/null || true
+    cp -R "$built" "$dest" 2>/dev/null \
+      || { warn_line "couldn't install Perch.app (built at $built)"; return 1; }
+  fi
+  ok_line "Perch.app → ${dest/#$HOME/~}"
+  open "$dest" 2>/dev/null || true
+  ok_line "Perch launched — colored bars appear in the menu bar"
+}
+
+setup_widget_reader() {
+  [ "${WIDGET_ON:-0}" -eq 1 ] || return 0
+  if [ "$OPT_DRYRUN" -eq 1 ]; then
+    note_line "would install the Perch reader (native app or SwiftBar plugin)"
+    return 0
+  fi
+  printf '\n'
+  if command -v xcodegen >/dev/null 2>&1 && command -v xcodebuild >/dev/null 2>&1 \
+       && [ -d "$SCRIPT_DIR/widget/macos/App" ]; then
+    build_perch_app || install_swiftbar_plugin
+  else
+    install_swiftbar_plugin
+  fi
+  note_line "start a Claude session in an installed profile so snapshots appear"
+}
+
 # --- Main --------------------------------------------------------------------
 hero
 
@@ -556,13 +645,18 @@ printf '\n'
 choose_theme
 printf '\n'
 choose_targets
+decide_widget   # resolves WIDGET_ON before install so the command can opt the writer in
 
 for t in "${TARGETS[@]}"; do
   install_one "$t"
 done
 
+setup_widget_reader
+
 if [ "$OPT_DRYRUN" -eq 1 ]; then
   printf '\n %s[dry-run] nothing was written.%s\n\n' "$C_DIM" "$C_RESET"
 else
-  printf '\n %s%sDone.%s Restart Claude Code to see the statusline.\n\n' "$C_BOLD" "$C_OK" "$C_RESET"
+  printf '\n %s%sDone.%s Restart Claude Code to see the statusline.\n' "$C_BOLD" "$C_OK" "$C_RESET"
+  [ "$WIDGET_ON" -eq 1 ] && printf ' %sPerch%s shows your accounts in the menu bar.\n' "$C_BOLD" "$C_RESET"
+  printf '\n'
 fi

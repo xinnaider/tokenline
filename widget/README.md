@@ -28,6 +28,15 @@ session (CLAUDE_CONFIG_DIR=cliente)  ─┘        │ writes <account>.json
                    SwiftBar plugin                          MenuBarExtra app
 ```
 
+## Quickest: the installer
+
+`./install.sh` offers it as an optional step (or `./install.sh --widget` to skip
+the prompt). When enabled it prefixes the statusLine command with
+`TOKENLINE_WIDGET=1` (writer scoped to that command — your shell env is
+untouched) and installs a reader: the native **Perch.app** when Xcode +
+[XcodeGen](https://github.com/yonaskolb/XcodeGen) are present, otherwise the
+SwiftBar plugin. The manual steps below are the same thing by hand.
+
 ## 1. Enable the writer
 
 In each account's shell (where `CLAUDE_CONFIG_DIR` points at that account's
