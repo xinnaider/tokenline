@@ -479,10 +479,13 @@ _widget_snapshot() {
   [ "${is_subagent:-0}" = "1" ] && return 0   # internal subagents aren't sessions
 
   local dir="${TOKENLINE_WIDGET_DIR:-$HOME/Library/Application Support/tokenline/widget}"
-  local key="${CLAUDE_CONFIG_DIR:-default}"
+  # Unset CLAUDE_CONFIG_DIR means the default config dir (~/.claude), so key it
+  # "claude" — grouping those sessions with the real ~/.claude account instead
+  # of a confusing separate "default".
+  local key="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
   key="$(basename "$key")"
   key="${key#.}"   # config dirs are dotfiles (~/.claude-x); drop the leading dot
-  [ -n "$key" ] || key="default"
+  [ -n "$key" ] || key="claude"
   mkdir -p "$dir" 2>/dev/null || return 0
   chmod 700 "$dir" 2>/dev/null
 

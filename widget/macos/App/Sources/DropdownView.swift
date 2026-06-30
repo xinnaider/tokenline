@@ -3,6 +3,7 @@ import TokenlineWidgetKit
 
 struct DropdownView: View {
     @ObservedObject var model: WidgetModel
+    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -52,11 +53,11 @@ struct DropdownView: View {
         HStack {
             Button {
                 // LSUIElement agent: become a regular app + activate so the
-                // Settings window actually comes to the front (it's restored to
-                // .accessory when Settings closes).
+                // Settings window comes to the front (restored to .accessory
+                // when Settings closes), then open it via the macOS 14 action.
                 NSApp.setActivationPolicy(.regular)
                 NSApp.activate(ignoringOtherApps: true)
-                NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+                openSettings()
             } label: { Label("Ajustes", systemImage: "gearshape") }
 
             Spacer()

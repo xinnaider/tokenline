@@ -2,7 +2,7 @@ name: TokenlineWidget
 options:
   bundleIdPrefix: tech.inbrace.tokenline
   deploymentTarget:
-    macOS: "13.0"
+    macOS: "14.0"
 packages:
   TokenlineWidgetKit:
     path: ../TokenlineWidgetKit

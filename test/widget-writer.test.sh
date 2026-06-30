@@ -33,11 +33,11 @@ jq -e '.model=="Opus 4.8"' "$f" >/dev/null || fail "bad model"
 jq -e '.econ.read==18000' "$f" >/dev/null || fail "bad econ.read"
 jq -e '.saving_pct>0' "$f" >/dev/null || fail "saving_pct not populated"
 
-# 3. Account key falls back to 'default' when CLAUDE_CONFIG_DIR is unset.
+# 3. Unset CLAUDE_CONFIG_DIR maps to the default config dir (~/.claude) -> "claude".
 w3="$tmp/widget3"
 env -u CLAUDE_CONFIG_DIR TOKENLINE_WIDGET=1 TOKENLINE_WIDGET_DIR="$w3" \
   XDG_RUNTIME_DIR="$tmp/rt3" bash tokenline.sh < "$pay" >/dev/null 2>&1 || true
-jq -e '.account_key=="default"' "$(one "$w3")" >/dev/null 2>&1 || fail "missing default key fallback"
+jq -e '.account_key=="claude"' "$(one "$w3")" >/dev/null 2>&1 || fail "unset config dir not keyed 'claude'"
 
 # 4. Stdout is byte-identical with and without the flag.
 a="$(XDG_RUNTIME_DIR="$tmp/rt4" bash tokenline.sh < "$pay" 2>/dev/null || true)"
