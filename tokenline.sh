@@ -503,6 +503,23 @@ _widget_snapshot() {
     printf '%s %s\n' "$spend" "${tokens_used:-0}" > "$spend_file" 2>/dev/null
   fi
 
+  # Multiple concurrent sessions of one account write the same file; without
+  # this, last-writer-wins makes the 5h value flicker between sessions. Keep the
+  # highest 5h while another session is actively holding it (updated <10s ago);
+  # let it decay only after that snapshot goes quiet. A session always updates
+  # its own snapshot freely.
+  if [ -f "$out" ]; then
+    local cur_sid cur_p5 cur_ts
+    cur_sid="$(jq -r '.session_id // ""' "$out" 2>/dev/null)"
+    cur_p5="$(_num "$(jq -r '.rate.five_hour.pct // 0' "$out" 2>/dev/null)")"
+    cur_ts="$(_num "$(jq -r '.updated_at // 0' "$out" 2>/dev/null)")"
+    if [ "$cur_sid" != "${session_id:-}" ] \
+       && [ "$(( now - cur_ts ))" -lt 10 ] \
+       && awk "BEGIN{ exit !($(_num "$rl_5h_pct") < $cur_p5) }"; then
+      return 0
+    fi
+  fi
+
   jq -nc \
     --arg key "$key" --arg sid "${session_id:-}" --arg model "${model:-}" \
     --argjson up "$(_num "$used_pct")" --argjson sz "$(_num "$tokens_limit")" --argjson tu "$(_num "$tokens_used")" \
