@@ -58,7 +58,9 @@ for f in "${files[@]}"; do
   stale=""; [ "${age:-0}" -gt 90 ] 2>/dev/null && stale=" (idle)"
   spk="$(fmt_tokens "$spend")"
   c="$(color_for "$p5")"
-  lines+=("$key$stale  5h ${p5}% · 7d ${p7}% · ctx ${ctx}% · ${state} · save ${sv}% · ${spk} · ${model} | color=$c")
+  # Prettify the account key: split on - and _, capitalize each word.
+  nm="$(printf '%s' "$key" | tr '_-' '  ' | awk '{for(i=1;i<=NF;i++)$i=toupper(substr($i,1,1)) substr($i,2)}1')"
+  lines+=("$nm$stale  5h ${p5}% · 7d ${p7}% · ctx ${ctx}% · ${state} · save ${sv}% · ${spk} · ${model} | color=$c")
 done
 
 [ "$worst" -lt 0 ] && worst=0

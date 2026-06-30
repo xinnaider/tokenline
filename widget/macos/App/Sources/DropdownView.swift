@@ -87,7 +87,7 @@ private struct AccountRow: View {
                 Circle()
                     .fill(view.isStale ? AnyShapeStyle(.tertiary) : AnyShapeStyle(Usage.color(p5)))
                     .frame(width: 7, height: 7)
-                Text(labels.displayName(for: s.account_key).capitalizedFirst)
+                Text(labels.displayName(for: s.account_key))
                     .font(.system(size: 13, weight: .semibold))
                 if !cacheNote.isEmpty {
                     Text(cacheNote).font(.system(size: 10, weight: .medium))

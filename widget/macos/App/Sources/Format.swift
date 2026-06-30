@@ -12,15 +12,6 @@ enum Usage {
     static let track = Color.primary.opacity(0.10)
 }
 
-extension String {
-    /// Uppercases only the first character, preserving the rest
-    /// ("trabalho" → "Trabalho", "Cliente X" → "Cliente X").
-    var capitalizedFirst: String {
-        guard let f = first else { return self }
-        return f.uppercased() + dropFirst()
-    }
-}
-
 func fmtTokens(_ v: Int) -> String {
     if v >= 1_000_000 { return String(format: "%.1fM", Double(v) / 1_000_000) }
     if v >= 1_000 { return String(format: "%.0fk", Double(v) / 1_000) }

@@ -9,10 +9,10 @@ fail() { echo "FAIL: $1" >&2; echo "--- output ---" >&2; echo "$out" >&2; exit 1
 # Menu bar line (first line) shows the most-constrained account: 95%.
 echo "$out" | head -1 | grep -q '95%' || fail "menu bar not the worst account"
 
-# Dropdown has one line per account.
-echo "$out" | grep -q '^trabalho ' || fail "missing trabalho line"
-echo "$out" | grep -q '^pessoal '  || fail "missing pessoal line"
-echo "$out" | grep -q '^cliente '  || fail "missing cliente line"
+# Dropdown has one line per account, with the key prettified (Title Case).
+echo "$out" | grep -q '^Trabalho ' || fail "missing trabalho line"
+echo "$out" | grep -q '^Pessoal '  || fail "missing pessoal line"
+echo "$out" | grep -q '^Cliente '  || fail "missing cliente line"
 
 # Dense fields are present and the model name keeps its space.
 echo "$out" | grep -q 'save 71%'   || fail "missing saving field"

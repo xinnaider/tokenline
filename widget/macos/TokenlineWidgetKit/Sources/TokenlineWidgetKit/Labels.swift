@@ -17,6 +17,18 @@ public struct Labels {
         return Labels(map: map)
     }
 
-    public func displayName(for key: String) -> String { map[key]?.label ?? key }
+    /// Explicit label when set in labels.json; otherwise the account key
+    /// prettified ("claude-pessoal" → "Claude Pessoal").
+    public func displayName(for key: String) -> String {
+        map[key]?.label ?? Labels.prettify(key)
+    }
+
     public func order(for key: String) -> Int { map[key]?.order ?? Int.max }
+
+    /// Splits on `-`, `_`, and spaces, then capitalizes each word's first letter.
+    public static func prettify(_ key: String) -> String {
+        key.split(whereSeparator: { $0 == "-" || $0 == "_" || $0 == " " })
+            .map { $0.prefix(1).uppercased() + $0.dropFirst() }
+            .joined(separator: " ")
+    }
 }
