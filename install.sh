@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TOKENLINE_SRC="$SCRIPT_DIR/tokenline.sh"
 
 # --- Options -----------------------------------------------------------------
-OPT_DIR=""
+OPT_DIRS=()   # one or more --dir targets (repeatable)
 OPT_YES=0
 OPT_DRYRUN=0
 OPT_PRINT=0
@@ -34,7 +34,7 @@ Usage:
   ./install.sh                 # interactive — pick a theme, then profile(s)
   ./install.sh --theme <name>  # full | minimal | compact | economics | limits
   ./install.sh --yes           # non-interactive — full theme into ~/.claude
-  ./install.sh --dir <path>    # install into a specific directory
+  ./install.sh --dir <path>    # install into a specific dir (repeat for several)
   ./install.sh --dry-run       # show what would happen, write nothing
   ./install.sh --print         # only print the settings snippet
   ./install.sh --force         # replace a different existing statusLine
@@ -50,7 +50,7 @@ EOF
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --dir) OPT_DIR="${2:-}"; shift 2 ;;
+    --dir) OPT_DIRS+=("${2:-}"); shift 2 ;;
     --theme) OPT_THEME="${2:-}"; shift 2 ;;
     -y|--yes) OPT_YES=1; shift ;;
     --dry-run) OPT_DRYRUN=1; shift ;;
@@ -459,8 +459,10 @@ choose_theme() {
 # Fills the global TARGETS array with the directories to install into.
 TARGETS=()
 choose_targets() {
-  if [ -n "$OPT_DIR" ]; then
-    TARGETS=( "$(expand_path "$OPT_DIR")" )
+  if [ "${#OPT_DIRS[@]}" -gt 0 ]; then
+    TARGETS=()
+    local d
+    for d in "${OPT_DIRS[@]}"; do TARGETS+=( "$(expand_path "$d")" ); done
     return 0
   fi
   if [ "$OPT_YES" -eq 1 ]; then
