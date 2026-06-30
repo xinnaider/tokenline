@@ -23,7 +23,7 @@ struct DropdownView: View {
         }
         .padding(.horizontal, 15)
         .padding(.vertical, 13)
-        .frame(width: 340)
+        .frame(width: 360)
     }
 
     private var header: some View {
@@ -114,14 +114,19 @@ private struct SessionRow: View {
     private var s: Snapshot { session.snapshot }
     private var cache: String { s.cache.state == "HOT" ? "HOT·\(s.cache.ttl_label)" : s.cache.state }
     private var ctxTokens: String { "\(fmtTokens(s.context.tokens_used))/\(fmtTokens(s.context.size))" }
+    private var dir: String { s.dir ?? "" }
+    private var branch: String { s.branch ?? "" }
+    private var stateColor: Color {
+        session.state == .active
+            ? Color(red: 0.20, green: 0.78, blue: 0.34)   // green: a turn within the last minute
+            : Color(red: 1.00, green: 0.66, blue: 0.00)   // amber: open but idle
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 6) {
-                Circle()
-                    .fill(session.isActive ? AnyShapeStyle(.primary) : AnyShapeStyle(.quaternary))
-                    .frame(width: 4, height: 4)
-                Text(s.model).font(.system(size: 11, weight: .medium))
+                Circle().fill(stateColor).frame(width: 6, height: 6)   // semaphore
+                Text(s.model).font(.system(size: 11, weight: session.isActive ? .semibold : .medium))
                 Spacer()
                 Text(fmtTokens(s.spend.session_tokens))
                     .font(.system(size: 11)).monospacedDigit().foregroundStyle(.tertiary)
@@ -132,8 +137,21 @@ private struct SessionRow: View {
                 if !cache.isEmpty { Text("· \(cache)") }
                 Text("· save \(Int(s.saving_pct))%")
             }
-            .font(.system(size: 10)).foregroundStyle(.secondary)
-            .padding(.leading, 10)
+            .font(.system(size: 10)).foregroundStyle(.secondary).padding(.leading, 12)
+
+            if !dir.isEmpty || !branch.isEmpty {
+                HStack(spacing: 5) {
+                    if !dir.isEmpty {
+                        Image(systemName: "folder").imageScale(.small)
+                        Text(dir)
+                    }
+                    if !branch.isEmpty {
+                        Image(systemName: "arrow.triangle.branch").imageScale(.small)
+                        Text(branch).lineLimit(1).truncationMode(.middle)
+                    }
+                }
+                .font(.system(size: 10)).foregroundStyle(.tertiary).padding(.leading, 12)
+            }
         }
     }
 }

@@ -32,6 +32,9 @@ public struct Snapshot: Codable, Identifiable, Equatable {
     public var updated_at: Int
     /// Last-turn timestamp; absent on snapshots written before this field existed.
     public var active_at: Int?
+    /// Working directory basename + git branch this session is in (may be empty).
+    public var dir: String?
+    public var branch: String?
 
     public var id: String { session_id }
 

@@ -111,7 +111,8 @@ parse_and_prepare_paths() {
     (.context_window.current_usage.input_tokens // 0),
     (.context_window.current_usage.output_tokens // 0),
     (.context_window.current_usage.cache_creation_input_tokens // 0),
-    (.context_window.current_usage.cache_read_input_tokens // 0)' 2>/dev/null)
+    (.context_window.current_usage.cache_read_input_tokens // 0),
+    (.workspace.current_dir // .cwd // "")' 2>/dev/null)
 
   # Malformed or empty stdin: jq emits nothing, so the array is empty. Degrade to
   # a silent no-op render rather than leaking parse errors or rendering garbage —
@@ -131,6 +132,7 @@ parse_and_prepare_paths() {
   cur_output="${_f[10]}"
   cur_cwrite="${_f[11]}"
   cur_cread="${_f[12]}"
+  cwd="${_f[13]}"
 
   # Computed: total input-only tokens used in the current context window
   tokens_used=$((cur_input + cur_cwrite + cur_cread))
@@ -515,6 +517,15 @@ _widget_snapshot() {
   local active_at
   active_at="$(_num "$(cat "$_runtime_dir/lastts-${session_id:-default}" 2>/dev/null)")"
 
+  # Working dir (basename) + git branch, so the reader can show where each
+  # session is working. git is optional — branch stays empty without it.
+  local dir_name="" branch=""
+  if [ -n "${cwd:-}" ]; then
+    dir_name="$(basename "$cwd")"
+    command -v git >/dev/null 2>&1 && \
+      branch="$(git -C "$cwd" rev-parse --abbrev-ref HEAD 2>/dev/null)"
+  fi
+
   jq -nc \
     --arg key "$key" --arg sid "${session_id:-}" --arg model "${model:-}" \
     --argjson up "$(_num "$used_pct")" --argjson sz "$(_num "$tokens_limit")" --argjson tu "$(_num "$tokens_used")" \
@@ -524,8 +535,9 @@ _widget_snapshot() {
     --argjson p5 "$(_num "$rl_5h_pct")" --arg r5 "${rl_5h_reset:-}" \
     --argjson p7 "$(_num "$rl_7d_pct")" --arg r7 "${rl_7d_reset:-}" \
     --argjson spend "$(_num "$spend")" --argjson ts "$(_num "$now")" \
-    --argjson act "$active_at" \
+    --argjson act "$active_at" --arg dir "$dir_name" --arg br "$branch" \
     '{schema:1, account_key:$key, session_id:$sid, model:$model, active_at:$act,
+      dir:$dir, branch:$br,
       context:{used_pct:$up, size:$sz, tokens_used:$tu},
       cache:{state:$cs, ttl_label:$ttl},
       econ:{read:$r, write:$w, new:$n, output:$o, eq:$eq},

@@ -64,4 +64,11 @@ runs sessB
 [ -f "$w7/acct__sessA.json" ] && [ -f "$w7/acct__sessB.json" ] \
   || fail "concurrent sessions did not produce separate per-session files"
 
+# 7. Working dir is captured from the payload (basename); branch empty off-repo.
+w8="$tmp/widget8"
+jq -c '. + {workspace:{current_dir:"/x/projects/my-proj"}}' "$pay" \
+  | TOKENLINE_WIDGET=1 TOKENLINE_WIDGET_DIR="$w8" CLAUDE_CONFIG_DIR=/x/acct \
+    XDG_RUNTIME_DIR="$tmp/rt8" bash tokenline.sh >/dev/null 2>&1 || true
+jq -e '.dir=="my-proj"' "$(one "$w8")" >/dev/null 2>&1 || fail "working dir not captured"
+
 echo "PASS: widget-writer"

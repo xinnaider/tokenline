@@ -54,7 +54,10 @@ jq -s -r --argjson now "$now" '
       | (.active.rate.five_hour.pct|floor) as $p5
       | "\(pretty(.key))  5h \($p5)% · 7d \(.active.rate.seven_day.pct|floor)% · \(.live) sess | color=\(col($p5))",
         ( .sessions[]
-          | "-- \(.model)  \(fmt(.context.tokens_used))/\(fmt(.context.size)) \(.context.used_pct|floor)% · \(.cache.state) · save \(.saving_pct|floor)% · \(fmt(.spend.session_tokens))"
+          | (if (recency > ($now - 60)) then "🟢" else "🟡" end) as $sem
+          | (if ((.dir // "") != "") then "  📁\(.dir)" else "" end) as $d
+          | (if ((.branch // "") != "") then "  ⎇\(.branch)" else "" end) as $b
+          | "-- \($sem) \(.model)  \(fmt(.context.tokens_used))/\(fmt(.context.size)) \(.context.used_pct|floor)% · \(.cache.state) · save \(.saving_pct|floor)% · \(fmt(.spend.session_tokens))\($d)\($b)"
         )
     )
 ' "${files[@]}"

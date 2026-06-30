@@ -22,8 +22,8 @@ final class StoreTests: XCTestCase {
 
         // Account 'a': two live sessions. s1 is more recently active and reads 30%;
         // s2 is an older-active session with a stale-cached 77%.
-        try write(dir, account: "a", session: "s1", p5: 30, activeAt: 1000, updated: 1000)
-        try write(dir, account: "a", session: "s2", p5: 77, activeAt: 950, updated: 1000)
+        try write(dir, account: "a", session: "s1", p5: 30, activeAt: 1000, updated: 1000) // turn now
+        try write(dir, account: "a", session: "s2", p5: 77, activeAt: 900, updated: 1000)  // turn 100s ago
         // Window still open (updated now) but last turn ~16 min ago -> hidden.
         try write(dir, account: "a", session: "s3", p5: 77, activeAt: 0, updated: 1000)
         // Account 'b': one live session, the most-constrained.
@@ -46,6 +46,8 @@ final class StoreTests: XCTestCase {
         XCTAssertEqual(a.sessions.first!.snapshot.session_id, "s1") // most-active first
         XCTAssertTrue(a.sessions.first!.isActive)
         XCTAssertFalse(a.sessions.last!.isActive)
+        XCTAssertEqual(a.sessions.first!.state, .active)            // s1: turn now
+        XCTAssertEqual(a.sessions.last!.state, .idle)              // s2: turn 100s ago
 
         let c = groups.first { $0.key == "c" }!
         XCTAssertTrue(c.isStale)

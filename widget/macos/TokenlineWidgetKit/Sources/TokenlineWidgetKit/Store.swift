@@ -1,13 +1,17 @@
 import Foundation
 
-/// One live session within an account (per-session snapshot + whether it's the
-/// most-recently-active one).
+/// Traffic-light state of a session, by how recently it took a turn.
+public enum SessionState: Equatable { case active, idle }
+
+/// One live session within an account (per-session snapshot, its traffic-light
+/// state, and whether it's the account's most-recently-active session).
 public struct SessionInfo: Identifiable, Equatable {
     public let snapshot: Snapshot
+    public let state: SessionState
     public let isActive: Bool
     public var id: String { snapshot.session_id }
-    public init(snapshot: Snapshot, isActive: Bool) {
-        self.snapshot = snapshot; self.isActive = isActive
+    public init(snapshot: Snapshot, state: SessionState, isActive: Bool) {
+        self.snapshot = snapshot; self.state = state; self.isActive = isActive
     }
 }
 
@@ -35,6 +39,7 @@ public final class Store {
     /// long-idle window (e.g. untouched for an hour) is hidden.
     public static let windowOpen: TimeInterval = 20
     public static let recentlyUsed: TimeInterval = 900   // 15 min
+    public static let activeWithin: TimeInterval = 60    // green ≤ 1 min, amber beyond
     public let dir: URL
     public init(dir: URL) { self.dir = dir }
 
@@ -67,7 +72,11 @@ public final class Store {
         for (key, snaps) in byAccount {
             let shown = snaps.filter(isShown).sorted { $0.activity > $1.activity }
             if let active = shown.first {
-                let sessions = shown.map { SessionInfo(snapshot: $0, isActive: $0.id == active.id) }
+                let sessions = shown.map { snap -> SessionInfo in
+                    let st: SessionState =
+                        nowEpoch - Double(snap.activity) <= Store.activeWithin ? .active : .idle
+                    return SessionInfo(snapshot: snap, state: st, isActive: snap.id == active.id)
+                }
                 groups.append(AccountGroup(
                     key: key,
                     fiveHour: active.rate.five_hour,   // freshest account-wide reading

@@ -23,5 +23,8 @@ echo "$out" | grep -qF 'Opus 4.8'    || fail "model name mangled"
 echo "$out" | grep -qF '124k/200k'   || fail "missing per-session ctx tokens (used/total)"
 echo "$out" | grep -qF 'save '       || fail "missing per-session saving%"
 echo "$out" | grep -qF '3.8M'        || fail "spend not C-locale formatted"
+echo "$out" | grep -qF '🟢'          || fail "missing session state semaphore"
+echo "$out" | grep -qF '📁my-project' || fail "missing session working dir"
+echo "$out" | grep -qF '⎇feat/login'  || fail "missing session git branch"
 
 echo "PASS: swiftbar"
