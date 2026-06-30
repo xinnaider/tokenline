@@ -11,9 +11,9 @@ struct DropdownView: View {
             if model.accounts.isEmpty {
                 emptyState
             } else {
-                ForEach(Array(model.accounts.enumerated()), id: \.element.id) { idx, view in
+                ForEach(Array(model.accounts.enumerated()), id: \.element.id) { idx, group in
                     if idx > 0 { Divider().opacity(0.35) }
-                    AccountRow(view: view, labels: model.labels)
+                    AccountBlock(group: group, labels: model.labels)
                         .padding(.vertical, 11)
                 }
             }
@@ -23,7 +23,7 @@ struct DropdownView: View {
         }
         .padding(.horizontal, 15)
         .padding(.vertical, 13)
-        .frame(width: 320)
+        .frame(width: 340)
     }
 
     private var header: some View {
@@ -69,48 +69,66 @@ struct DropdownView: View {
     }
 }
 
-private struct AccountRow: View {
-    let view: AccountView
+private struct AccountBlock: View {
+    let group: AccountGroup
     let labels: Labels
-    private var s: Snapshot { view.snapshot }
-    private var p5: Double { s.rate.five_hour.pct }
+    private var p5: Double { group.fiveHour.pct }
 
-    private var cacheNote: String {
-        if view.isStale { return "idle" }
-        if s.cache.state == "HOT" { return "HOT · \(s.cache.ttl_label)" }
-        return s.cache.state
+    private var countLabel: String {
+        if group.isStale { return "idle" }
+        return group.liveCount == 1 ? "1 sessão" : "\(group.liveCount) sessões"
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
             HStack(spacing: 7) {
                 Circle()
-                    .fill(view.isStale ? AnyShapeStyle(.tertiary) : AnyShapeStyle(Usage.color(p5)))
+                    .fill(group.isStale ? AnyShapeStyle(.tertiary) : AnyShapeStyle(Usage.color(p5)))
                     .frame(width: 7, height: 7)
-                Text(labels.displayName(for: s.account_key))
+                Text(labels.displayName(for: group.key))
                     .font(.system(size: 13, weight: .semibold))
-                if !cacheNote.isEmpty {
-                    Text(cacheNote).font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.tertiary)
-                }
                 Spacer()
-                Text(s.model).font(.system(size: 11)).foregroundStyle(.tertiary)
+                Text("\(Int(p5))%")
+                    .font(.system(size: 12, weight: .semibold)).monospacedDigit()
+                    .foregroundStyle(Usage.color(p5))
             }
 
             UsageBar(pct: p5)
 
-            HStack(spacing: 12) {
-                Metric("5h", "\(Int(p5))%", color: Usage.color(p5), emphasis: true)
-                Metric("7d", "\(Int(s.rate.seven_day.pct))%")
-                Metric("ctx", "\(Int(s.context.used_pct))%")
-                Metric("save", "\(Int(s.saving_pct))%")
-                Spacer()
-                Text(fmtTokens(s.spend.session_tokens))
-                    .font(.system(size: 11, weight: .medium)).monospacedDigit()
-                    .foregroundStyle(.tertiary)
+            HStack(spacing: 8) {
+                Text("7d \(Int(group.sevenDay.pct))%")
+                Text("·")
+                Text(countLabel)
             }
+            .font(.system(size: 10)).foregroundStyle(.tertiary)
+
+            ForEach(group.sessions) { SessionRow(session: $0) }
+                .padding(.leading, 2)
         }
-        .opacity(view.isStale ? 0.45 : 1)
+        .opacity(group.isStale ? 0.5 : 1)
+    }
+}
+
+private struct SessionRow: View {
+    let session: SessionInfo
+    private var s: Snapshot { session.snapshot }
+    private var cache: String { s.cache.state == "HOT" ? "HOT·\(s.cache.ttl_label)" : s.cache.state }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(session.isActive ? AnyShapeStyle(.primary) : AnyShapeStyle(.quaternary))
+                .frame(width: 4, height: 4)
+            Text(s.model).font(.system(size: 11, weight: .medium))
+            Text("ctx \(Int(s.context.used_pct))%").font(.system(size: 11)).monospacedDigit()
+                .foregroundStyle(.secondary)
+            if !cache.isEmpty {
+                Text(cache).font(.system(size: 10)).foregroundStyle(.tertiary)
+            }
+            Spacer()
+            Text(fmtTokens(s.spend.session_tokens))
+                .font(.system(size: 11)).monospacedDigit().foregroundStyle(.tertiary)
+        }
     }
 }
 
@@ -126,31 +144,5 @@ private struct UsageBar: View {
         }
         .frame(height: 4)
         .animation(.easeOut(duration: 0.35), value: pct)
-    }
-}
-
-private struct Metric: View {
-    let label: String
-    let value: String
-    var color: Color?
-    var emphasis: Bool
-
-    init(_ label: String, _ value: String, color: Color? = nil, emphasis: Bool = false) {
-        self.label = label; self.value = value; self.color = color; self.emphasis = emphasis
-    }
-
-    private var valueStyle: AnyShapeStyle {
-        if let color { return AnyShapeStyle(color) }
-        return emphasis ? AnyShapeStyle(.primary) : AnyShapeStyle(.secondary)
-    }
-
-    var body: some View {
-        HStack(spacing: 3) {
-            Text(label).font(.system(size: 10)).foregroundStyle(.tertiary)
-            Text(value)
-                .font(.system(size: 11, weight: emphasis ? .semibold : .regular))
-                .monospacedDigit()
-                .foregroundStyle(valueStyle)
-        }
     }
 }

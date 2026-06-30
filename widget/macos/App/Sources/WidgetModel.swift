@@ -5,7 +5,7 @@ import TokenlineWidgetKit
 
 @MainActor
 final class WidgetModel: ObservableObject {
-    @Published var accounts: [AccountView] = []
+    @Published var accounts: [AccountGroup] = []
     @Published var barLabel: String = "–"
     @Published var barImage: NSImage?
     @Published var labels = Labels.load()
@@ -38,14 +38,14 @@ final class WidgetModel: ObservableObject {
 
     func reload() {
         labels = Labels.load()
-        let views = store.load()
-        accounts = views
+        let groups = store.load()
+        accounts = groups
         // Colored mini bar chart (one bar per account) + the worst number.
-        barImage = menuBarBars(views)
-        if let worst = store.worstFiveHour(views) {
+        barImage = menuBarBars(groups)
+        if let worst = store.worstFiveHour(groups) {
             barLabel = "\(Int(worst))%"
         } else {
-            barLabel = views.isEmpty ? "–" : "idle"
+            barLabel = groups.isEmpty ? "–" : "idle"
         }
     }
 

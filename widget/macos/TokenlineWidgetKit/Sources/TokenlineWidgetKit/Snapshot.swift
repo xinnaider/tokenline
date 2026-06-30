@@ -30,6 +30,11 @@ public struct Snapshot: Codable, Identifiable, Equatable {
     public var rate: Rate
     public var spend: Spend
     public var updated_at: Int
+    /// Last-turn timestamp; absent on snapshots written before this field existed.
+    public var active_at: Int?
 
-    public var id: String { account_key }
+    public var id: String { session_id }
+
+    /// Recency of this session's last turn (falls back to the write time).
+    public var activity: Int { active_at ?? updated_at }
 }

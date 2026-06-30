@@ -3,15 +3,14 @@
 # <xbar.desc>Claude usage across multiple accounts</xbar.desc>
 # <xbar.dependencies>jq</xbar.dependencies>
 #
-# SwiftBar/xbar plugin: reads tokenline widget snapshots (written by tokenline.sh
-# when TOKENLINE_WIDGET=1) and shows per-account usage in the macOS menu bar.
-# The menu bar shows the most-constrained account's 5h %; the dropdown lists one
-# dense line per account. This is the throwaway prototype reader — same store and
-# schema the native MenuBarExtra app consumes.
+# SwiftBar/xbar plugin: reads tokenline per-session snapshots (written by
+# tokenline.sh when TOKENLINE_WIDGET=1), groups them by account, and shows each
+# account's 5h/7d limit with its live sessions nested underneath. The menu bar
+# shows the most-constrained account's 5h %. Same store/schema the native
+# MenuBarExtra app consumes — this is the throwaway prototype reader.
 set -uo pipefail
 
-# Pin C locale so awk/printf emit "3.8M" not "3,8M" under comma-decimal locales
-# (e.g. pt_BR) — same reason tokenline.sh exports LC_ALL=C.
+# Pin C locale so awk/jq emit "3.8M" not "3,8M" under comma-decimal locales.
 export LC_ALL=C
 
 DIR="${TOKENLINE_WIDGET_DIR:-$HOME/Library/Application Support/tokenline/widget}"
@@ -28,42 +27,31 @@ fi
 
 now="$(date +%s)"
 
-color_for() { # $1 = integer pct -> SwiftBar color name
-  if   [ "${1:-0}" -ge 86 ] 2>/dev/null; then echo red
-  elif [ "${1:-0}" -ge 50 ] 2>/dev/null; then echo orange
-  else echo green; fi
-}
+jq -s -r --argjson now "$now" '
+  def col(p): if p>=86 then "red" elif p>=50 then "orange" else "green" end;
+  def fmt(v): if v>=1000000 then "\(((v/100000)|floor)/10)M"
+              elif v>=1000 then "\((v/1000)|floor)k" else "\(v|floor)" end;
+  def titlecase: split(" ") | map((.[0:1]|ascii_upcase) + .[1:]) | join(" ");
+  def pretty(k): (k | gsub("[-_]"; " ") | titlecase);
 
-fmt_tokens() { # $1 = integer tokens -> 1.2M / 420k / 12
-  awk -v v="${1:-0}" 'BEGIN {
-    if (v >= 1000000) printf "%.1fM", v/1000000
-    else if (v >= 1000) printf "%.0fk", v/1000
-    else printf "%d", v }'
-}
+  # Group per-session snapshots by account; pick the most-recently-active
+  # session for the account-wide rate limit; count sessions still ticking.
+  [ group_by(.account_key)[] | {
+      key: .[0].account_key,
+      live: ([ .[] | select((.updated_at // 0) > ($now - 30)) ] | length),
+      active: (max_by(.active_at // .updated_at)),
+      sessions: (sort_by(-(.active_at // .updated_at)))
+    } ]
+  | sort_by(-(.active.rate.five_hour.pct)) as $accts
+  | ([ $accts[].active.rate.five_hour.pct ] | max // 0 | floor) as $worst
 
-worst=-1
-lines=()
-for f in "${files[@]}"; do
-  # Tab-separated so the model name ("Opus 4.8") keeps its space.
-  IFS=$'\t' read -r key model p5 p7 ctx sv spend state age < <(
-    jq -r --argjson now "$now" '
-      [ .account_key, .model,
-        (.rate.five_hour.pct|floor), (.rate.seven_day.pct|floor),
-        (.context.used_pct|floor), (.saving_pct|floor),
-        .spend.session_tokens, .cache.state,
-        ($now - .updated_at) ] | @tsv' "$f" 2>/dev/null
-  )
-  [ -z "${key:-}" ] && continue
-  [ "$p5" -gt "$worst" ] 2>/dev/null && worst="$p5"
-  stale=""; [ "${age:-0}" -gt 90 ] 2>/dev/null && stale=" (idle)"
-  spk="$(fmt_tokens "$spend")"
-  c="$(color_for "$p5")"
-  # Prettify the account key: split on - and _, capitalize each word.
-  nm="$(printf '%s' "$key" | tr '_-' '  ' | awk '{for(i=1;i<=NF;i++)$i=toupper(substr($i,1,1)) substr($i,2)}1')"
-  lines+=("$nm$stale  5h ${p5}% · 7d ${p7}% · ctx ${ctx}% · ${state} · save ${sv}% · ${spk} · ${model} | color=$c")
-done
-
-[ "$worst" -lt 0 ] && worst=0
-echo "${worst}% | color=$(color_for "$worst")"
-echo "---"
-for l in "${lines[@]}"; do echo "$l"; done
+  | "\($worst)% | color=\(col($worst))",
+    "---",
+    ( $accts[]
+      | (.active.rate.five_hour.pct|floor) as $p5
+      | "\(pretty(.key))  5h \($p5)% · 7d \(.active.rate.seven_day.pct|floor)% · \(.live) sess | color=\(col($p5))",
+        ( .sessions[]
+          | "-- \(.model)  ctx \(.context.used_pct|floor)% · \(.cache.state) · \(fmt(.spend.session_tokens))"
+        )
+    )
+' "${files[@]}"

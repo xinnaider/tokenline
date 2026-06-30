@@ -13,15 +13,15 @@ extension Usage {
 /// Renders one colored vertical bar per account (height = 5h load) as a
 /// NON-template NSImage, so the menu bar shows real color instead of being
 /// tinted monochrome. Stale accounts draw in the neutral track color.
-func menuBarBars(_ views: [AccountView], height: CGFloat = 13) -> NSImage? {
-    guard !views.isEmpty else { return nil }
+func menuBarBars(_ groups: [AccountGroup], height: CGFloat = 13) -> NSImage? {
+    guard !groups.isEmpty else { return nil }
     let barW: CGFloat = 3, gap: CGFloat = 2
-    let n = CGFloat(views.count)
+    let n = CGFloat(groups.count)
     let size = NSSize(width: n * barW + max(0, n - 1) * gap, height: height)
 
     let image = NSImage(size: size, flipped: false) { rect in
-        for (i, v) in views.enumerated() {
-            let p = max(0, min(100, v.snapshot.rate.five_hour.pct))
+        for (i, v) in groups.enumerated() {
+            let p = max(0, min(100, v.fiveHour.pct))
             let x = CGFloat(i) * (barW + gap)
 
             // Faint full-height track so the unused headroom is visible.

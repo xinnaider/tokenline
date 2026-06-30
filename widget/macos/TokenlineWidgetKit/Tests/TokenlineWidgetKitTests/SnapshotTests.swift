@@ -14,7 +14,8 @@ final class SnapshotTests: XCTestCase {
         """.data(using: .utf8)!
         let s = try JSONDecoder().decode(Snapshot.self, from: json)
         XCTAssertEqual(s.account_key, "trabalho")
-        XCTAssertEqual(s.id, "trabalho")
+        XCTAssertEqual(s.id, "s1")                    // identity is the session
+        XCTAssertEqual(s.activity, s.updated_at)      // no active_at -> falls back
         XCTAssertEqual(s.rate.five_hour.pct, 78, accuracy: 0.01)
         XCTAssertEqual(s.econ.read, 18000)
         XCTAssertEqual(s.spend.session_tokens, 1240000)

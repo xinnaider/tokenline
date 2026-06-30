@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tests the SwiftBar prototype reader against fixture snapshots.
+# Tests the SwiftBar prototype reader against per-session fixture snapshots.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -9,14 +9,18 @@ fail() { echo "FAIL: $1" >&2; echo "--- output ---" >&2; echo "$out" >&2; exit 1
 # Menu bar line (first line) shows the most-constrained account: 95%.
 echo "$out" | head -1 | grep -q '95%' || fail "menu bar not the worst account"
 
-# Dropdown has one line per account, with the key prettified (Title Case).
-echo "$out" | grep -q '^Trabalho ' || fail "missing trabalho line"
-echo "$out" | grep -q '^Pessoal '  || fail "missing pessoal line"
-echo "$out" | grep -q '^Cliente '  || fail "missing cliente line"
+# One account header per account, key prettified (Title Case).
+echo "$out" | grep -q '^Trabalho ' || fail "missing Trabalho account header"
+echo "$out" | grep -q '^Pessoal '  || fail "missing Pessoal account header"
+echo "$out" | grep -q '^Cliente '  || fail "missing Cliente account header"
 
-# Dense fields are present and the model name keeps its space.
-echo "$out" | grep -q 'save 71%'   || fail "missing saving field"
-echo "$out" | grep -qF 'Opus 4.8'  || fail "model name mangled (IFS split?)"
-echo "$out" | grep -qF '3.8M'      || fail "spend not C-locale formatted (comma decimal?)"
+# Pessoal has two sessions in the fixtures -> session count reflects it.
+echo "$out" | grep -qF '2 sess' || fail "session count not grouped per account"
+
+# Sessions render as nested (--) sub-lines with model + ctx + spend (C-locale).
+echo "$out" | grep -q '^-- '       || fail "no nested session lines"
+echo "$out" | grep -qF 'Opus 4.8'  || fail "model name mangled"
+echo "$out" | grep -qF 'ctx '      || fail "missing per-session ctx"
+echo "$out" | grep -qF '3.8M'      || fail "spend not C-locale formatted"
 
 echo "PASS: swiftbar"

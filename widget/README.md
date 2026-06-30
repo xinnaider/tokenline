@@ -47,9 +47,13 @@ export TOKENLINE_WIDGET=1
 # CLAUDE_CONFIG_DIR already distinguishes the account, e.g. ~/.claude-trabalho
 ```
 
-The account key is `basename "$CLAUDE_CONFIG_DIR"` (falls back to `default`).
-Snapshots land in `~/Library/Application Support/tokenline/widget/` (override with
-`TOKENLINE_WIDGET_DIR`). Each file is `schema:1`:
+The account key is `basename "$CLAUDE_CONFIG_DIR"` (leading dot stripped, falls
+back to `default`). Each **session** writes its own snapshot
+`~/Library/Application Support/tokenline/widget/<account>__<session>.json`
+(override the dir with `TOKENLINE_WIDGET_DIR`); the readers group them by account
+so concurrent sessions are each visible, with the account-wide 5h/7d taken from
+the most-recently-active session. Internal subagents are skipped; dead sessions'
+files are pruned. Each file is `schema:1`:
 
 ```json
 {"schema":1,"account_key":"trabalho","model":"Opus 4.8",

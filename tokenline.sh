@@ -135,8 +135,11 @@ parse_and_prepare_paths() {
   # Computed: total input-only tokens used in the current context window
   tokens_used=$((cur_input + cur_cwrite + cur_cread))
 
-  # If Claude Code sends a subagent transcript, resolve it to the parent session instead
+  # If Claude Code sends a subagent transcript, resolve it to the parent session
+  # instead, and flag it so the widget writer can skip internal subagents.
+  is_subagent=0
   if [[ "$transcript_path" == */subagents/* ]]; then
+    is_subagent=1
     transcript_path="$(dirname "$(dirname "$transcript_path")").jsonl"
   fi
 
@@ -471,6 +474,7 @@ _num() { case "${1:-}" in ''|*[!0-9.]*) printf 0 ;; *) printf '%s' "$1" ;; esac;
 _widget_snapshot() {
   [ "${TOKENLINE_WIDGET:-0}" = "1" ] || return 0
   command -v jq >/dev/null 2>&1 || return 0
+  [ "${is_subagent:-0}" = "1" ] && return 0   # internal subagents aren't sessions
 
   local dir="${TOKENLINE_WIDGET_DIR:-$HOME/Library/Application Support/tokenline/widget}"
   local key="${CLAUDE_CONFIG_DIR:-default}"
@@ -480,7 +484,9 @@ _widget_snapshot() {
   mkdir -p "$dir" 2>/dev/null || return 0
   chmod 700 "$dir" 2>/dev/null
 
-  local out="$dir/$key.json"
+  # One snapshot per SESSION (not per account): the reader groups them by
+  # account_key, so multiple concurrent sessions are each visible.
+  local out="$dir/${key}__${session_id:-nosession}.json"
   local stamp="$_runtime_dir/widgetlast-${session_id:-default}"
 
   # Throttle: skip if fingerprint unchanged AND written < 5s ago.
@@ -503,25 +509,11 @@ _widget_snapshot() {
     printf '%s %s\n' "$spend" "${tokens_used:-0}" > "$spend_file" 2>/dev/null
   fi
 
-  # Many concurrent sessions of ONE account each cache the account-wide 5h limit
-  # at a different time, so idle sessions report a stale percentage. The session
-  # you are actively using has the freshest reading (newest turn timestamp). Let
-  # the most-recently-active session own the snapshot: a session whose last turn
-  # is older must not overwrite a still-alive, more-recently-active one. A
-  # session always updates its own snapshot.
+  # active_at = this session's last-turn timestamp. The reader uses it to take
+  # the account-wide rate-limit from the most-recently-active session and to
+  # flag which session is active.
   local active_at
   active_at="$(_num "$(cat "$_runtime_dir/lastts-${session_id:-default}" 2>/dev/null)")"
-  if [ -f "$out" ]; then
-    local cur_sid cur_act cur_ts
-    cur_sid="$(jq -r '.session_id // ""' "$out" 2>/dev/null)"
-    cur_act="$(_num "$(jq -r '.active_at // 0' "$out" 2>/dev/null)")"
-    cur_ts="$(_num "$(jq -r '.updated_at // 0' "$out" 2>/dev/null)")"
-    if [ "$cur_sid" != "${session_id:-}" ] \
-       && [ "$(( now - cur_ts ))" -lt 15 ] \
-       && [ "$cur_act" -gt "$active_at" ]; then
-      return 0
-    fi
-  fi
 
   jq -nc \
     --arg key "$key" --arg sid "${session_id:-}" --arg model "${model:-}" \
@@ -541,6 +533,11 @@ _widget_snapshot() {
       rate:{five_hour:{pct:$p5, resets_at:$r5}, seven_day:{pct:$p7, resets_at:$r7}},
       spend:{session_tokens:$spend}, updated_at:$ts}' \
     > "$out.tmp" 2>/dev/null && mv "$out.tmp" "$out" 2>/dev/null
+
+  # Prune snapshots from sessions that stopped ticking (closed windows): a live
+  # statusline rewrites its file every few seconds, so a *.json older than a few
+  # minutes is a dead session. Keeps the persistent store from accumulating.
+  find "$dir" -name '*.json' -type f -mmin +5 -delete 2>/dev/null || true
 
   printf '%s|%s\n' "${now:-0}" "$fp" > "$stamp" 2>/dev/null
   return 0
