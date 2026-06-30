@@ -378,12 +378,11 @@ compute_turn_breakdown() {
     fi
 
     # Equivalent tokens formula
-    local eq_tokens
     local uncached_eq
     eq_tokens=$(awk "BEGIN { printf \"%d\", ($cur_cread * $read_mult) + ($cur_cwrite * $write_mult) + ($cur_input * $input_mult) + ($cur_output * $output_mult) }")
     uncached_eq=$(awk "BEGIN { printf \"%d\", ($cur_cread + $cur_cwrite + $cur_input) * $input_mult + ($cur_output * $output_mult) }")
     
-    local saving_pct=0
+    saving_pct=0
     [ "$uncached_eq" -gt 0 ] && saving_pct=$(awk "BEGIN { printf \"%d\", 100 * ($uncached_eq - $eq_tokens) / $uncached_eq }")
     
     local read_lbl="${read_mult}x"
@@ -407,6 +406,68 @@ compute_turn_breakdown() {
       "$COLOR_GRAY" "$COLOR_ORANGE" "$(fmt_k "$eq_tokens")" "$COLOR_RESET" \
       "$COLOR_GRAY" "$save_color" "$saving_pct" "$COLOR_RESET")
   fi
+}
+
+# --- Widget snapshot writer (opt-in via TOKENLINE_WIDGET=1) ---------------------
+# Emits a small DERIVED snapshot per account so an external macOS menu bar app can
+# aggregate usage across multiple CLAUDE_CONFIG_DIR accounts. Never writes the raw
+# stdin payload — only computed metrics. Must never affect the rendered line: all
+# failures are swallowed and it returns 0.
+_num() { case "${1:-}" in ''|*[!0-9.]*) printf 0 ;; *) printf '%s' "$1" ;; esac; }
+
+_widget_snapshot() {
+  [ "${TOKENLINE_WIDGET:-0}" = "1" ] || return 0
+  command -v jq >/dev/null 2>&1 || return 0
+
+  local dir="${TOKENLINE_WIDGET_DIR:-$HOME/Library/Application Support/tokenline/widget}"
+  local key="${CLAUDE_CONFIG_DIR:-default}"
+  key="$(basename "$key")"
+  mkdir -p "$dir" 2>/dev/null || return 0
+  chmod 700 "$dir" 2>/dev/null
+
+  local out="$dir/$key.json"
+  local stamp="$_runtime_dir/widgetlast-${session_id:-default}"
+
+  # Throttle: skip if fingerprint unchanged AND written < 5s ago.
+  local fp="${rl_5h_pct}|${rl_7d_pct}|${used_pct}|${saving_pct}|${tokens_used}|${model}"
+  local prev_t="" prev_fp=""
+  if [ -f "$stamp" ]; then
+    IFS='|' read -r prev_t prev_fp < "$stamp"
+    if [ "$fp" = "$prev_fp" ] && [ $(( now - ${prev_t:-0} )) -lt 5 ]; then
+      return 0
+    fi
+  fi
+
+  # Cumulative session spend (tokens): grow on a new turn (tokens_used changed).
+  local spend_file="$_runtime_dir/widgetspend-${session_id:-default}"
+  local spend last_tok
+  spend="$(awk '{print $1}' "$spend_file" 2>/dev/null)"; spend="$(_num "$spend")"
+  last_tok="$(awk '{print $2}' "$spend_file" 2>/dev/null)"; last_tok="$(_num "$last_tok")"
+  if [ "${tokens_used:-0}" -ne "$last_tok" ] 2>/dev/null; then
+    spend=$(( spend + $(_num "$cur_input") + $(_num "$cur_output") ))
+    printf '%s %s\n' "$spend" "${tokens_used:-0}" > "$spend_file" 2>/dev/null
+  fi
+
+  jq -nc \
+    --arg key "$key" --arg sid "${session_id:-}" --arg model "${model:-}" \
+    --argjson up "$(_num "$used_pct")" --argjson sz "$(_num "$tokens_limit")" --argjson tu "$(_num "$tokens_used")" \
+    --arg cs "${cache_state:-}" --arg ttl "${ttl_label:-}" \
+    --argjson r "$(_num "$cur_cread")" --argjson w "$(_num "$cur_cwrite")" --argjson n "$(_num "$cur_input")" \
+    --argjson o "$(_num "$cur_output")" --argjson eq "$(_num "$eq_tokens")" --argjson sv "$(_num "$saving_pct")" \
+    --argjson p5 "$(_num "$rl_5h_pct")" --arg r5 "${rl_5h_reset:-}" \
+    --argjson p7 "$(_num "$rl_7d_pct")" --arg r7 "${rl_7d_reset:-}" \
+    --argjson spend "$(_num "$spend")" --argjson ts "$(_num "$now")" \
+    '{schema:1, account_key:$key, session_id:$sid, model:$model,
+      context:{used_pct:$up, size:$sz, tokens_used:$tu},
+      cache:{state:$cs, ttl_label:$ttl},
+      econ:{read:$r, write:$w, new:$n, output:$o, eq:$eq},
+      saving_pct:$sv,
+      rate:{five_hour:{pct:$p5, resets_at:$r5}, seven_day:{pct:$p7, resets_at:$r7}},
+      spend:{session_tokens:$spend}, updated_at:$ts}' \
+    > "$out.tmp" 2>/dev/null && mv "$out.tmp" "$out" 2>/dev/null
+
+  printf '%s|%s\n' "${now:-0}" "$fp" > "$stamp" 2>/dev/null
+  return 0
 }
 
 # --- 7. Compose and Render Output ---
@@ -447,3 +508,4 @@ compute_context_info
 compute_rate_limits
 compute_turn_breakdown
 render_statusline
+( _widget_snapshot ) 2>/dev/null || true
