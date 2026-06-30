@@ -44,6 +44,8 @@ jobs:
       # ubuntu-latest ships bash 5 + jq, the only deps these scripts need.
       - name: Widget writer test
         run: bash test/widget-writer.test.sh
+      - name: SwiftBar plugin test
+        run: bash test/swiftbar.test.sh
 
   cli:
     name: CLI (lint, typecheck, build)
