@@ -6,6 +6,7 @@ import TokenlineWidgetKit
 final class WidgetModel: ObservableObject {
     @Published var accounts: [AccountView] = []
     @Published var barLabel: String = "–"
+    @Published var barSymbol: String = "gauge.medium"
     @Published var labels = Labels.load()
 
     private let store: Store
@@ -40,8 +41,10 @@ final class WidgetModel: ObservableObject {
         accounts = views
         if let worst = store.worstFiveHour(views) {
             barLabel = "\(Int(worst))%"
+            barSymbol = Usage.gauge(worst)
         } else {
             barLabel = views.isEmpty ? "–" : "idle"
+            barSymbol = "gauge.medium"
         }
     }
 

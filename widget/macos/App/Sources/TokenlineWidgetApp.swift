@@ -7,6 +7,9 @@ struct TokenlineWidgetApp: App {
         MenuBarExtra {
             DropdownView(model: model)
         } label: {
+            // Symbol + number: the glyph gives the item presence in a crowded
+            // menu bar (and past the notch); the number carries the value.
+            Image(systemName: model.barSymbol)
             Text(model.barLabel)
         }
         .menuBarExtraStyle(.window)
