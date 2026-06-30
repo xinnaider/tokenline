@@ -597,6 +597,12 @@ build_perch_app() {
   local built="$app/build/Build/Products/Release/TokenlineWidget.app"
   [ -d "$built" ] || { warn_line "build produced no .app — see widget/README.md"; return 1; }
 
+  # Stop a running copy first — replacing a live .app bundle on disk leaves a
+  # dead, unclickable "ghost" menu bar item.
+  pkill -f '/Perch.app/Contents/MacOS/' 2>/dev/null || true
+  pkill -f '/TokenlineWidget.app/Contents/MacOS/' 2>/dev/null || true
+  sleep 1
+
   local dest="/Applications/Perch.app"
   if ! { rm -rf "$dest" 2>/dev/null && cp -R "$built" "$dest" 2>/dev/null; }; then
     dest="$HOME/Applications/Perch.app"
