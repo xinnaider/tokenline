@@ -153,6 +153,15 @@ Other commands: `doctor` (check dependencies and config, change nothing) and `un
 `tokenline` detects the Antigravity CLI from the transcript path and switches to its provider equivalents automatically. Point Antigravity's statusline command at the same
 `tokenline.sh` — no extra flags needed.
 
+## macOS multi-account widget
+
+Run several Claude accounts (one per `CLAUDE_CONFIG_DIR`)? An **opt-in**,
+macOS-only menu bar widget aggregates their usage side by side — same data as the
+statusline, per account. Set `export TOKENLINE_WIDGET=1` in each account's shell
+and `tokenline.sh` writes a small derived snapshot per account; a SwiftBar plugin
+or a native SwiftUI `MenuBarExtra` app reads them. The statusline is unchanged
+unless you turn it on. See [`widget/README.md`](widget/README.md).
+
 ## How it works
 
 On every refresh the host CLI pipes a JSON snapshot of the session to the script over stdin. `tokenline` parses it in a single `jq` pass (to keep the per-second refresh cheap), reads the last turn's timestamp from the transcript to drive the cache countdown, and renders up to three lines. Per-turn timestamps are cached in a per-user `0700` directory under `$XDG_RUNTIME_DIR` (tmpfs, cleared on logout).

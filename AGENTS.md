@@ -59,3 +59,16 @@ the statusline — the bash + `install.sh` path stays first-class so non-Node
 users (Python, Ruby, …) are never excluded. Its `settings.json` patching is
 deliberately safe: merge-only, back up first, never clobber invalid JSON,
 idempotent, `--force` to replace an existing `statusLine`.
+
+## The macOS widget
+
+`widget/` holds opt-in, macOS-only reader tooling for a multi-account menu bar
+view: a SwiftBar bash plugin (`widget/swiftbar/`) and a native SwiftUI
+`MenuBarExtra` app (`widget/macos/`, a SwiftPM kit + an XcodeGen project). The
+only behavior toggle in the per-second hot path is `TOKENLINE_WIDGET=1`: when
+set, `tokenline.sh` writes a small **derived** snapshot per account
+(`basename "$CLAUDE_CONFIG_DIR"`) under
+`~/Library/Application Support/tokenline/widget/` — derived metrics only, never
+the raw stdin payload, and the rendered line stays byte-identical. Default OFF.
+Like the npm installer, the widget must never become *required* to use the
+statusline.
