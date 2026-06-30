@@ -51,6 +51,11 @@ struct DropdownView: View {
     private var footer: some View {
         HStack {
             Button {
+                // LSUIElement agent: become a regular app + activate so the
+                // Settings window actually comes to the front (it's restored to
+                // .accessory when Settings closes).
+                NSApp.setActivationPolicy(.regular)
+                NSApp.activate(ignoringOtherApps: true)
                 NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
             } label: { Label("Ajustes", systemImage: "gearshape") }
 

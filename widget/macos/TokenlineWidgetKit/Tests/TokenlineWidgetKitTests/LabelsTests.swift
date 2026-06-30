@@ -23,4 +23,12 @@ final class LabelsTests: XCTestCase {
         XCTAssertEqual(Labels.prettify("claude"), "Claude")
         XCTAssertEqual(Labels.prettify(""), "")
     }
+    func testWriteRoundTrips() throws {
+        let dir = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        let url = dir.appendingPathComponent("labels.json")
+        try Labels.write(["claude-pessoal": Labels.Entry(label: "Conta X", order: 0)], to: url)
+        let labels = Labels.load(url)
+        XCTAssertEqual(labels.displayName(for: "claude-pessoal"), "Conta X")
+        XCTAssertEqual(labels.entries["claude-pessoal"]?.label, "Conta X")
+    }
 }

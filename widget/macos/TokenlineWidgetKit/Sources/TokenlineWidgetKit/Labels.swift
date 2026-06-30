@@ -1,9 +1,25 @@
 import Foundation
 
 public struct Labels {
-    public struct Entry: Codable, Equatable { public var label: String; public var order: Int? }
+    public struct Entry: Codable, Equatable {
+        public var label: String
+        public var order: Int?
+        public init(label: String, order: Int? = nil) { self.label = label; self.order = order }
+    }
     private let map: [String: Entry]
     public init(map: [String: Entry] = [:]) { self.map = map }
+
+    /// The raw alias map, for an editor to read and round-trip.
+    public var entries: [String: Entry] { map }
+
+    /// Persist an alias map to labels.json (creating the dir if needed).
+    public static func write(_ map: [String: Entry], to url: URL = defaultURL) throws {
+        try FileManager.default.createDirectory(
+            at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let enc = JSONEncoder()
+        enc.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try enc.encode(map).write(to: url)
+    }
 
     public static var defaultURL: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
