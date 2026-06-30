@@ -32,6 +32,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/Store.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
         },
         {
@@ -43,7 +47,8 @@
       "moduleName" : "TokenlineWidgetKit",
       "moduleOutputPath" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKit.swiftmodule",
       "objects" : [
-        "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Snapshot.swift.o"
+        "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Snapshot.swift.o",
+        "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Store.swift.o"
       ],
       "otherArguments" : [
         "-target",
@@ -102,12 +107,17 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Store.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKit.swiftmodule"
         }
       ],
       "prepareForIndexing" : false,
       "sources" : [
-        "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/Snapshot.swift"
+        "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/Snapshot.swift",
+        "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/Store.swift"
       ],
       "tempsPath" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build",
       "wholeModuleOptimization" : false
@@ -218,6 +228,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Tests/TokenlineWidgetKitTests/StoreTests.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
         },
         {
@@ -233,7 +247,8 @@
       "moduleName" : "TokenlineWidgetKitTests",
       "moduleOutputPath" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKitTests.swiftmodule",
       "objects" : [
-        "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/SnapshotTests.swift.o"
+        "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/SnapshotTests.swift.o",
+        "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/StoreTests.swift.o"
       ],
       "otherArguments" : [
         "-target",
@@ -291,12 +306,17 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/StoreTests.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKitTests.swiftmodule"
         }
       ],
       "prepareForIndexing" : false,
       "sources" : [
-        "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Tests/TokenlineWidgetKitTests/SnapshotTests.swift"
+        "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Tests/TokenlineWidgetKitTests/SnapshotTests.swift",
+        "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Tests/TokenlineWidgetKitTests/StoreTests.swift"
       ],
       "tempsPath" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build",
       "wholeModuleOptimization" : false
@@ -314,6 +334,7 @@
       "tokenlinewidgetkit",
       "-c",
       "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/Snapshot.swift",
+      "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/Store.swift",
       "-I",
       "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules",
       "-target",
@@ -434,6 +455,7 @@
       "tokenlinewidgetkit",
       "-c",
       "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Tests/TokenlineWidgetKitTests/SnapshotTests.swift",
+      "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Tests/TokenlineWidgetKitTests/StoreTests.swift",
       "-I",
       "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules",
       "-target",
@@ -530,6 +552,10 @@
         {
           "kind" : "file",
           "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/Snapshot.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/Store.swift"
         }
       ],
       "outputFilePath" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/sources"
@@ -561,11 +587,19 @@
         },
         {
           "kind" : "file",
+          "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Store.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.build/runner.swift.o"
         },
         {
           "kind" : "file",
           "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/SnapshotTests.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/StoreTests.swift.o"
         }
       ],
       "outputFilePath" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.product/Objects.LinkFileList"
@@ -580,6 +614,10 @@
         {
           "kind" : "file",
           "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Tests/TokenlineWidgetKitTests/SnapshotTests.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Tests/TokenlineWidgetKitTests/StoreTests.swift"
         }
       ],
       "outputFilePath" : "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/sources"
