@@ -7,10 +7,14 @@ struct TokenlineWidgetApp: App {
         MenuBarExtra {
             DropdownView(model: model)
         } label: {
-            // Symbol + number: the glyph gives the item presence in a crowded
-            // menu bar (and past the notch); the number carries the value.
-            Image(systemName: model.barSymbol)
-            Text(model.barLabel)
+            // Colored per-account bar chart (real color via a non-template
+            // image). Falls back to text only when there are no accounts, so the
+            // menu bar item never becomes invisible/unclickable.
+            if let img = model.barImage {
+                Image(nsImage: img).renderingMode(.original)
+            } else {
+                Text(model.barLabel)
+            }
         }
         .menuBarExtraStyle(.window)
 

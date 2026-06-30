@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import Combine
 import TokenlineWidgetKit
 
@@ -6,7 +7,7 @@ import TokenlineWidgetKit
 final class WidgetModel: ObservableObject {
     @Published var accounts: [AccountView] = []
     @Published var barLabel: String = "–"
-    @Published var barSymbol: String = "gauge.medium"
+    @Published var barImage: NSImage?
     @Published var labels = Labels.load()
 
     private let store: Store
@@ -39,12 +40,12 @@ final class WidgetModel: ObservableObject {
         labels = Labels.load()
         let views = store.load()
         accounts = views
+        // Colored mini bar chart (one bar per account) + the worst number.
+        barImage = menuBarBars(views)
         if let worst = store.worstFiveHour(views) {
             barLabel = "\(Int(worst))%"
-            barSymbol = Usage.gauge(worst)
         } else {
             barLabel = views.isEmpty ? "–" : "idle"
-            barSymbol = "gauge.medium"
         }
     }
 

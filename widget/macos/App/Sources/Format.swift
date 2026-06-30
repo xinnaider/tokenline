@@ -1,19 +1,23 @@
 import SwiftUI
 
-/// Severity scale shared by the menu bar glyph and the dropdown.
+/// Usage severity drives a focused splash of color — the bullet, the bar fill,
+/// and the 5h value. Everything else stays neutral so it reads calm, not loud.
 enum Usage {
     static func color(_ p: Double) -> Color {
         if p >= 86 { return Color(red: 1.00, green: 0.27, blue: 0.23) } // red
-        if p >= 50 { return Color(red: 1.00, green: 0.62, blue: 0.04) } // amber
-        return Color(red: 0.18, green: 0.80, blue: 0.34)                // green
+        if p >= 50 { return Color(red: 1.00, green: 0.58, blue: 0.00) } // amber
+        return Color(red: 0.20, green: 0.78, blue: 0.35)                // green
     }
 
-    /// SF Symbol whose fill tracks severity — gives the menu bar item a shape,
-    /// not just a number, so it survives a crowded bar / the notch.
-    static func gauge(_ p: Double) -> String {
-        if p >= 86 { return "gauge.high" }
-        if p >= 50 { return "gauge.medium" }
-        return "gauge.low"
+    static let track = Color.primary.opacity(0.10)
+}
+
+extension String {
+    /// Uppercases only the first character, preserving the rest
+    /// ("trabalho" → "Trabalho", "Cliente X" → "Cliente X").
+    var capitalizedFirst: String {
+        guard let f = first else { return self }
+        return f.uppercased() + dropFirst()
     }
 }
 
