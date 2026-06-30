@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/primary.swiftdeps"
+  },
+  "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/Snapshot.swift": {
+    "dependencies": "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Snapshot.d",
+    "object": "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Snapshot.swift.o",
+    "swiftmodule": "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Snapshot~partial.swiftmodule",
+    "swift-dependencies": "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Snapshot.swiftdeps",
+    "diagnostics": "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Snapshot.dia"
+  }
+}

@@ -1,0 +1,112 @@
+client:
+  name: basic
+  file-system: device-agnostic
+tools: {}
+targets:
+  "PackageStructure": ["<PackageStructure>"]
+  "TokenlineWidgetKit-arm64-apple-macosx-debug.module": ["<TokenlineWidgetKit-arm64-apple-macosx-debug.module>"]
+  "TokenlineWidgetKitPackageTests-arm64-apple-macosx-debug.module": ["<TokenlineWidgetKitPackageTests-arm64-apple-macosx-debug.module>"]
+  "TokenlineWidgetKitPackageTests-arm64-apple-macosx-debug.test": ["<TokenlineWidgetKitPackageTests-arm64-apple-macosx-debug.test>"]
+  "TokenlineWidgetKitTests-arm64-apple-macosx-debug.module": ["<TokenlineWidgetKitTests-arm64-apple-macosx-debug.module>"]
+  "main": ["<TokenlineWidgetKit-arm64-apple-macosx-debug.module>"]
+  "test": ["<TokenlineWidgetKit-arm64-apple-macosx-debug.module>","<TokenlineWidgetKitPackageTests-arm64-apple-macosx-debug.test>","<TokenlineWidgetKitTests-arm64-apple-macosx-debug.module>"]
+default: "main"
+nodes:
+  "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/":
+    is-directory-structure: true
+    content-exclusion-patterns: [".git",".build"]
+  "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Tests/TokenlineWidgetKitTests/":
+    is-directory-structure: true
+    content-exclusion-patterns: [".git",".build"]
+commands:
+  "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/Snapshot.swift"]
+    outputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/sources"]
+    description: "Write auxiliary file /Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/sources"
+
+  "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.derived/runner.swift"]
+    outputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.build/sources"]
+    description: "Write auxiliary file /Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.build/sources"
+
+  "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.derived/runner.swift":
+    tool: test-entry-point-tool
+    inputs: []
+    outputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.derived/runner.swift"]
+
+  "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.product/Objects.LinkFileList":
+    tool: write-auxiliary-file
+    inputs: ["<link-file-list>","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Snapshot.swift.o","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.build/runner.swift.o","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/SnapshotTests.swift.o"]
+    outputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.product/Objects.LinkFileList"]
+    description: "Write auxiliary file /Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.product/Objects.LinkFileList"
+
+  "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Tests/TokenlineWidgetKitTests/SnapshotTests.swift"]
+    outputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/sources"]
+    description: "Write auxiliary file /Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/sources"
+
+  "/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt":
+    tool: write-auxiliary-file
+    inputs: ["<swift-get-version>","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"]
+    outputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"]
+    always-out-of-date: "true"
+    description: "Write auxiliary file /Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt"
+
+  "<TokenlineWidgetKit-arm64-apple-macosx-debug.module>":
+    tool: phony
+    inputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Snapshot.swift.o","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKit.swiftmodule"]
+    outputs: ["<TokenlineWidgetKit-arm64-apple-macosx-debug.module>"]
+
+  "<TokenlineWidgetKitPackageTests-arm64-apple-macosx-debug.module>":
+    tool: phony
+    inputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.build/runner.swift.o","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKitPackageTests.swiftmodule"]
+    outputs: ["<TokenlineWidgetKitPackageTests-arm64-apple-macosx-debug.module>"]
+
+  "<TokenlineWidgetKitPackageTests-arm64-apple-macosx-debug.test>":
+    tool: phony
+    inputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.xctest/Contents/MacOS/TokenlineWidgetKitPackageTests"]
+    outputs: ["<TokenlineWidgetKitPackageTests-arm64-apple-macosx-debug.test>"]
+
+  "<TokenlineWidgetKitTests-arm64-apple-macosx-debug.module>":
+    tool: phony
+    inputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/SnapshotTests.swift.o","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKitTests.swiftmodule"]
+    outputs: ["<TokenlineWidgetKitTests-arm64-apple-macosx-debug.module>"]
+
+  "C.TokenlineWidgetKit-arm64-apple-macosx-debug.module":
+    tool: shell
+    inputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/Snapshot.swift","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/sources"]
+    outputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Snapshot.swift.o","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKit.swiftmodule"]
+    description: "Compiling Swift Module 'TokenlineWidgetKit' (1 sources)"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-module-name","TokenlineWidgetKit","-emit-dependencies","-emit-module","-emit-module-path","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKit.swiftmodule","-output-file-map","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/output-file-map.json","-parse-as-library","-incremental","-c","@/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/sources","-I","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules","-target","arm64-apple-macosx13.0","-incremental","-enable-batch-mode","-serialize-diagnostics","-index-store-path","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/index/store","-Onone","-enable-testing","-j10","-DSWIFT_PACKAGE","-DDEBUG","-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE","-module-cache-path","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/ModuleCache","-parseable-output","-parse-as-library","-emit-objc-header","-emit-objc-header-path","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/include/TokenlineWidgetKit-Swift.h","-swift-version","5","-plugin-path","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g","-Xcc","-isysroot","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-Xcc","-fPIC","-Xcc","-g","-package-name","tokenlinewidgetkit"]
+
+  "C.TokenlineWidgetKitPackageTests-arm64-apple-macosx-debug.module":
+    tool: shell
+    inputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.derived/runner.swift","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKitTests.swiftmodule","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.build/sources"]
+    outputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.build/runner.swift.o","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKitPackageTests.swiftmodule"]
+    description: "Compiling Swift Module 'TokenlineWidgetKitPackageTests' (1 sources)"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-module-name","TokenlineWidgetKitPackageTests","-emit-dependencies","-emit-module","-emit-module-path","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKitPackageTests.swiftmodule","-output-file-map","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.build/output-file-map.json","-parse-as-library","-incremental","-c","@/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.build/sources","-I","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules","-target","arm64-apple-macosx13.0","-incremental","-enable-batch-mode","-serialize-diagnostics","-index-store-path","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/index/store","-Onone","-enable-testing","-Xfrontend","-enable-cross-import-overlays","-j10","-DSWIFT_PACKAGE","-DDEBUG","-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE","-module-cache-path","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/ModuleCache","-parseable-output","-parse-as-library","-emit-objc-header","-emit-objc-header-path","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.build/include/TokenlineWidgetKitPackageTests-Swift.h","-plugin-path","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g","-Xcc","-isysroot","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-Xcc","-fPIC","-Xcc","-g","-package-name","tokenlinewidgetkit"]
+
+  "C.TokenlineWidgetKitPackageTests-arm64-apple-macosx-debug.test":
+    tool: shell
+    inputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKit.build/Snapshot.swift.o","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.build/runner.swift.o","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/SnapshotTests.swift.o","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.product/Objects.LinkFileList"]
+    outputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.xctest/Contents/MacOS/TokenlineWidgetKitPackageTests"]
+    description: "Linking ./.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.xctest/Contents/MacOS/TokenlineWidgetKitPackageTests"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-L","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug","-o","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.xctest/Contents/MacOS/TokenlineWidgetKitPackageTests","-module-name","TokenlineWidgetKitPackageTests","-Xlinker","-no_warn_duplicate_libraries","-Xlinker","-bundle","-Xlinker","-rpath","-Xlinker","@loader_path/../../../","@/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitPackageTests.product/Objects.LinkFileList","-Xlinker","-rpath","-Xlinker","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift-6.2/macosx","-target","arm64-apple-macosx14.0","-Xlinker","-add_ast_path","-Xlinker","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKit.swiftmodule","-Xlinker","-add_ast_path","-Xlinker","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKitPackageTests.swiftmodule","-Xlinker","-add_ast_path","-Xlinker","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKitTests.swiftmodule","-plugin-path","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g"]
+
+  "C.TokenlineWidgetKitTests-arm64-apple-macosx-debug.module":
+    tool: shell
+    inputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Tests/TokenlineWidgetKitTests/SnapshotTests.swift","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/swift-version--58304C5D6DBC2206.txt","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKit.swiftmodule","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/sources"]
+    outputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/SnapshotTests.swift.o","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKitTests.swiftmodule"]
+    description: "Compiling Swift Module 'TokenlineWidgetKitTests' (1 sources)"
+    args: ["/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc","-module-name","TokenlineWidgetKitTests","-emit-dependencies","-emit-module","-emit-module-path","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules/TokenlineWidgetKitTests.swiftmodule","-output-file-map","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/output-file-map.json","-parse-as-library","-incremental","-c","@/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/TokenlineWidgetKitTests.build/sources","-I","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/Modules","-target","arm64-apple-macosx14.0","-incremental","-enable-batch-mode","-serialize-diagnostics","-index-store-path","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/index/store","-Onone","-enable-testing","-Xfrontend","-enable-cross-import-overlays","-j10","-DSWIFT_PACKAGE","-DDEBUG","-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE","-module-cache-path","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/.build/arm64-apple-macosx/debug/ModuleCache","-parseable-output","-parse-as-library","-swift-version","5","-plugin-path","/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing","-sdk","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk","-F","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-I","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-L","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib","-g","-Xcc","-isysroot","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk","-Xcc","-F","-Xcc","/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks","-Xcc","-fPIC","-Xcc","-g","-package-name","tokenlinewidgetkit"]
+
+  "PackageStructure":
+    tool: package-structure-tool
+    inputs: ["/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Sources/TokenlineWidgetKit/","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Tests/TokenlineWidgetKitTests/","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Package.swift","/Users/schnneider/Trabalho/tokenline-widget/widget/macos/TokenlineWidgetKit/Package.resolved"]
+    outputs: ["<PackageStructure>"]
+    description: "Planning build"
+    allow-missing-inputs: true
+
