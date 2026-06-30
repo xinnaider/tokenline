@@ -562,8 +562,18 @@ decide_widget() {
   case "$OPT_WIDGET" in
     yes) WIDGET_ON=1; return 0 ;;
     no)  return 0 ;;
-    *)   ;;                                    # auto → prompt when interactive
+    *)   ;;                                    # auto → preserve/prompt
   esac
+  # Preserve an existing setup: if any target already has the writer enabled,
+  # keep it on. Re-running the installer must never silently disable the widget.
+  local t
+  for t in "${TARGETS[@]}"; do
+    if [ -f "$t/settings.json" ] && grep -q 'TOKENLINE_WIDGET=1' "$t/settings.json" 2>/dev/null; then
+      WIDGET_ON=1
+      note_line "widget already enabled — keeping it on"
+      return 0
+    fi
+  done
   { [ -t 0 ] && [ -t 1 ]; } || return 0
   printf '\n %sAlso set up the macOS multi-account widget (Perch)?%s %s[y/N]%s ' \
     "$C_BOLD" "$C_RESET" "$C_DIM" "$C_RESET"
