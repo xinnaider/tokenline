@@ -24,6 +24,8 @@ final class StoreTests: XCTestCase {
         // s2 is an older-active session with a stale-cached 77%.
         try write(dir, account: "a", session: "s1", p5: 30, activeAt: 1000, updated: 1000)
         try write(dir, account: "a", session: "s2", p5: 77, activeAt: 950, updated: 1000)
+        // Window still open (updated now) but last turn ~16 min ago -> hidden.
+        try write(dir, account: "a", session: "s3", p5: 77, activeAt: 0, updated: 1000)
         // Account 'b': one live session, the most-constrained.
         try write(dir, account: "b", session: "s1", p5: 95, activeAt: 1000, updated: 1000)
         // Account 'c': one session, stale (no live -> last-known shown).

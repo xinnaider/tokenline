@@ -13,7 +13,13 @@ enum Usage {
 }
 
 func fmtTokens(_ v: Int) -> String {
-    if v >= 1_000_000 { return String(format: "%.1fM", Double(v) / 1_000_000) }
-    if v >= 1_000 { return String(format: "%.0fk", Double(v) / 1_000) }
+    // One decimal, but drop a trailing ".0" so round values stay clean
+    // (124000 → "124k", 448800 → "448.8k", 1_000_000 → "1M").
+    func unit(_ d: Double, _ suffix: String) -> String {
+        let s = String(format: "%.1f", d)
+        return (s.hasSuffix(".0") ? String(s.dropLast(2)) : s) + suffix
+    }
+    if v >= 1_000_000 { return unit(Double(v) / 1_000_000, "M") }
+    if v >= 1_000 { return unit(Double(v) / 1_000, "k") }
     return "\(v)"
 }

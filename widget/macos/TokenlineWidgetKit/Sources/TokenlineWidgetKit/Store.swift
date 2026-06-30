@@ -30,9 +30,11 @@ public struct AccountGroup: Identifiable, Equatable {
 }
 
 public final class Store {
-    /// A session whose snapshot hasn't been rewritten within this window is
-    /// treated as gone (its window closed); a live statusline rewrites ~1/sec.
-    public static let sessionTimeout: TimeInterval = 30
+    /// A session is shown only if its window is still ticking (rewrote its file
+    /// within `windowOpen`) AND it had a turn within `recentlyUsed`. An open but
+    /// long-idle window (e.g. untouched for an hour) is hidden.
+    public static let windowOpen: TimeInterval = 20
+    public static let recentlyUsed: TimeInterval = 900   // 15 min
     public let dir: URL
     public init(dir: URL) { self.dir = dir }
 
@@ -56,26 +58,34 @@ public final class Store {
         }
 
         let nowEpoch = now.timeIntervalSince1970
-        func isLive(_ s: Snapshot) -> Bool {
-            nowEpoch - Double(s.updated_at) <= Store.sessionTimeout
+        func isShown(_ s: Snapshot) -> Bool {
+            nowEpoch - Double(s.updated_at) <= Store.windowOpen
+                && nowEpoch - Double(s.activity) <= Store.recentlyUsed
         }
 
         var groups: [AccountGroup] = []
         for (key, snaps) in byAccount {
-            let live = snaps.filter(isLive)
-            let stale = live.isEmpty
-            // Show live sessions; if none are live, fall back to last-known.
-            let chosen = (stale ? snaps : live)
-                .sorted { $0.activity > $1.activity }   // most-recently-active first
-            guard let active = chosen.first else { continue }
-            let sessions = chosen.map { SessionInfo(snapshot: $0, isActive: $0.id == active.id) }
-            groups.append(AccountGroup(
-                key: key,
-                fiveHour: active.rate.five_hour,   // freshest account-wide reading
-                sevenDay: active.rate.seven_day,
-                sessions: sessions,
-                liveCount: live.count,
-                isStale: stale))
+            let shown = snaps.filter(isShown).sorted { $0.activity > $1.activity }
+            if let active = shown.first {
+                let sessions = shown.map { SessionInfo(snapshot: $0, isActive: $0.id == active.id) }
+                groups.append(AccountGroup(
+                    key: key,
+                    fiveHour: active.rate.five_hour,   // freshest account-wide reading
+                    sevenDay: active.rate.seven_day,
+                    sessions: sessions,
+                    liveCount: shown.count,
+                    isStale: false))
+            } else if let last = snaps.max(by: { $0.updated_at < $1.updated_at }) {
+                // No session is active right now: show the account greyed, with
+                // its last-known limits and no session rows.
+                groups.append(AccountGroup(
+                    key: key,
+                    fiveHour: last.rate.five_hour,
+                    sevenDay: last.rate.seven_day,
+                    sessions: [],
+                    liveCount: 0,
+                    isStale: true))
+            }
         }
         return groups.sorted { $0.fiveHour.pct > $1.fiveHour.pct }
     }

@@ -113,21 +113,27 @@ private struct SessionRow: View {
     let session: SessionInfo
     private var s: Snapshot { session.snapshot }
     private var cache: String { s.cache.state == "HOT" ? "HOT·\(s.cache.ttl_label)" : s.cache.state }
+    private var ctxTokens: String { "\(fmtTokens(s.context.tokens_used))/\(fmtTokens(s.context.size))" }
 
     var body: some View {
-        HStack(spacing: 6) {
-            Circle()
-                .fill(session.isActive ? AnyShapeStyle(.primary) : AnyShapeStyle(.quaternary))
-                .frame(width: 4, height: 4)
-            Text(s.model).font(.system(size: 11, weight: .medium))
-            Text("ctx \(Int(s.context.used_pct))%").font(.system(size: 11)).monospacedDigit()
-                .foregroundStyle(.secondary)
-            if !cache.isEmpty {
-                Text(cache).font(.system(size: 10)).foregroundStyle(.tertiary)
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(session.isActive ? AnyShapeStyle(.primary) : AnyShapeStyle(.quaternary))
+                    .frame(width: 4, height: 4)
+                Text(s.model).font(.system(size: 11, weight: .medium))
+                Spacer()
+                Text(fmtTokens(s.spend.session_tokens))
+                    .font(.system(size: 11)).monospacedDigit().foregroundStyle(.tertiary)
             }
-            Spacer()
-            Text(fmtTokens(s.spend.session_tokens))
-                .font(.system(size: 11)).monospacedDigit().foregroundStyle(.tertiary)
+            HStack(spacing: 6) {
+                Text(ctxTokens).monospacedDigit()
+                Text("\(Int(s.context.used_pct))%").monospacedDigit().foregroundStyle(.primary)
+                if !cache.isEmpty { Text("· \(cache)") }
+                Text("· save \(Int(s.saving_pct))%")
+            }
+            .font(.system(size: 10)).foregroundStyle(.secondary)
+            .padding(.leading, 10)
         }
     }
 }

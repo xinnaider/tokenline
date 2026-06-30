@@ -18,9 +18,10 @@ echo "$out" | grep -q '^Cliente '  || fail "missing Cliente account header"
 echo "$out" | grep -qF '2 sess' || fail "session count not grouped per account"
 
 # Sessions render as nested (--) sub-lines with model + ctx + spend (C-locale).
-echo "$out" | grep -q '^-- '       || fail "no nested session lines"
-echo "$out" | grep -qF 'Opus 4.8'  || fail "model name mangled"
-echo "$out" | grep -qF 'ctx '      || fail "missing per-session ctx"
-echo "$out" | grep -qF '3.8M'      || fail "spend not C-locale formatted"
+echo "$out" | grep -q '^-- '         || fail "no nested session lines"
+echo "$out" | grep -qF 'Opus 4.8'    || fail "model name mangled"
+echo "$out" | grep -qF '124k/200k'   || fail "missing per-session ctx tokens (used/total)"
+echo "$out" | grep -qF 'save '       || fail "missing per-session saving%"
+echo "$out" | grep -qF '3.8M'        || fail "spend not C-locale formatted"
 
 echo "PASS: swiftbar"

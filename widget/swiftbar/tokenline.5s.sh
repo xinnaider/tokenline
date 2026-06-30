@@ -30,18 +30,21 @@ now="$(date +%s)"
 jq -s -r --argjson now "$now" '
   def col(p): if p>=86 then "red" elif p>=50 then "orange" else "green" end;
   def fmt(v): if v>=1000000 then "\(((v/100000)|floor)/10)M"
-              elif v>=1000 then "\((v/1000)|floor)k" else "\(v|floor)" end;
+              elif v>=1000 then "\(((v/100)|floor)/10)k" else "\(v|floor)" end;
   def titlecase: split(" ") | map((.[0:1]|ascii_upcase) + .[1:]) | join(" ");
   def pretty(k): (k | gsub("[-_]"; " ") | titlecase);
+  def recency: (.active_at // .updated_at);
 
-  # Group per-session snapshots by account; pick the most-recently-active
-  # session for the account-wide rate limit; count sessions still ticking.
-  [ group_by(.account_key)[] | {
-      key: .[0].account_key,
-      live: ([ .[] | select((.updated_at // 0) > ($now - 30)) ] | length),
-      active: (max_by(.active_at // .updated_at)),
-      sessions: (sort_by(-(.active_at // .updated_at)))
-    } ]
+  # Group per-session snapshots by account. A session is shown only if its
+  # window is still ticking AND it had a turn recently (idle ones are hidden).
+  [ group_by(.account_key)[]
+    | ([ .[] | select((.updated_at > ($now - 20)) and (recency > ($now - 900))) ]) as $shown
+    | {
+        key: .[0].account_key,
+        live: ($shown | length),
+        active: (if ($shown|length) > 0 then ($shown | max_by(recency)) else (max_by(.updated_at)) end),
+        sessions: ($shown | sort_by(-recency))
+      } ]
   | sort_by(-(.active.rate.five_hour.pct)) as $accts
   | ([ $accts[].active.rate.five_hour.pct ] | max // 0 | floor) as $worst
 
@@ -51,7 +54,7 @@ jq -s -r --argjson now "$now" '
       | (.active.rate.five_hour.pct|floor) as $p5
       | "\(pretty(.key))  5h \($p5)% · 7d \(.active.rate.seven_day.pct|floor)% · \(.live) sess | color=\(col($p5))",
         ( .sessions[]
-          | "-- \(.model)  ctx \(.context.used_pct|floor)% · \(.cache.state) · \(fmt(.spend.session_tokens))"
+          | "-- \(.model)  \(fmt(.context.tokens_used))/\(fmt(.context.size)) \(.context.used_pct|floor)% · \(.cache.state) · save \(.saving_pct|floor)% · \(fmt(.spend.session_tokens))"
         )
     )
 ' "${files[@]}"
