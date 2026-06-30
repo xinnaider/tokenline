@@ -42,4 +42,33 @@ b="$(TOKENLINE_WIDGET=1 TOKENLINE_WIDGET_DIR="$tmp/widget4" CLAUDE_CONFIG_DIR=/x
      XDG_RUNTIME_DIR="$tmp/rt5" bash tokenline.sh < "$pay" 2>/dev/null || true)"
 [ "$a" = "$b" ] || fail "stdout differs with TOKENLINE_WIDGET=1"
 
+# 5. Most-recently-active session owns the account snapshot: an idle session
+#    (older last turn) must not overwrite a fresher, more-active one's value.
+w5="$tmp/widget5"; rt5="$tmp/rt5"; mkdir -p "$w5" "$rt5"
+nowt="$(date +%s)"
+stored() { # $1 = active_at for the stored OTHER-session snapshot
+  cat > "$w5/acct.json" <<JSON
+{"schema":1,"account_key":"acct","session_id":"OTHER","active_at":$1,
+ "context":{"used_pct":10,"size":200000,"tokens_used":1},"cache":{"state":"HOT","ttl_label":"5m"},
+ "econ":{"read":1,"write":1,"new":1,"output":1,"eq":1},"saving_pct":50,
+ "rate":{"five_hour":{"pct":61,"resets_at":"x"},"seven_day":{"pct":1,"resets_at":"y"}},
+ "spend":{"session_tokens":1},"updated_at":$nowt}
+JSON
+}
+runacct() { # $1 = session id, reports 5h=77
+  sed 's/"used_percentage":95/"used_percentage":77/; s/sess-test/'"$1"'/' "$pay" \
+    | TOKENLINE_WIDGET=1 TOKENLINE_WIDGET_DIR="$w5" CLAUDE_CONFIG_DIR=/x/acct \
+      XDG_RUNTIME_DIR="$rt5" bash tokenline.sh >/dev/null 2>&1 || true
+}
+# Owner is MORE active (future last-turn) -> our session must not stomp it.
+stored "$((nowt + 50))"
+runacct IDLEME
+jq -e '.rate.five_hour.pct==61 and .session_id=="OTHER"' "$w5/acct.json" >/dev/null \
+  || fail "a less-active session overwrote the more-active snapshot"
+# Owner is idle (old last-turn) -> our active session takes over.
+stored "$((nowt - 9000))"
+runacct ACTIVEME
+jq -e '.rate.five_hour.pct==77 and .session_id=="ACTIVEME"' "$w5/acct.json" >/dev/null \
+  || fail "an active session failed to take over an idle snapshot"
+
 echo "PASS: widget-writer"

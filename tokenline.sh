@@ -503,6 +503,26 @@ _widget_snapshot() {
     printf '%s %s\n' "$spend" "${tokens_used:-0}" > "$spend_file" 2>/dev/null
   fi
 
+  # Many concurrent sessions of ONE account each cache the account-wide 5h limit
+  # at a different time, so idle sessions report a stale percentage. The session
+  # you are actively using has the freshest reading (newest turn timestamp). Let
+  # the most-recently-active session own the snapshot: a session whose last turn
+  # is older must not overwrite a still-alive, more-recently-active one. A
+  # session always updates its own snapshot.
+  local active_at
+  active_at="$(_num "$(cat "$_runtime_dir/lastts-${session_id:-default}" 2>/dev/null)")"
+  if [ -f "$out" ]; then
+    local cur_sid cur_act cur_ts
+    cur_sid="$(jq -r '.session_id // ""' "$out" 2>/dev/null)"
+    cur_act="$(_num "$(jq -r '.active_at // 0' "$out" 2>/dev/null)")"
+    cur_ts="$(_num "$(jq -r '.updated_at // 0' "$out" 2>/dev/null)")"
+    if [ "$cur_sid" != "${session_id:-}" ] \
+       && [ "$(( now - cur_ts ))" -lt 15 ] \
+       && [ "$cur_act" -gt "$active_at" ]; then
+      return 0
+    fi
+  fi
+
   jq -nc \
     --arg key "$key" --arg sid "${session_id:-}" --arg model "${model:-}" \
     --argjson up "$(_num "$used_pct")" --argjson sz "$(_num "$tokens_limit")" --argjson tu "$(_num "$tokens_used")" \
@@ -512,7 +532,8 @@ _widget_snapshot() {
     --argjson p5 "$(_num "$rl_5h_pct")" --arg r5 "${rl_5h_reset:-}" \
     --argjson p7 "$(_num "$rl_7d_pct")" --arg r7 "${rl_7d_reset:-}" \
     --argjson spend "$(_num "$spend")" --argjson ts "$(_num "$now")" \
-    '{schema:1, account_key:$key, session_id:$sid, model:$model,
+    --argjson act "$active_at" \
+    '{schema:1, account_key:$key, session_id:$sid, model:$model, active_at:$act,
       context:{used_pct:$up, size:$sz, tokens_used:$tu},
       cache:{state:$cs, ttl_label:$ttl},
       econ:{read:$r, write:$w, new:$n, output:$o, eq:$eq},
